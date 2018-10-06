@@ -1,0 +1,38 @@
+{
+  "name": "julia",
+  "version": "1.0.0",
+  "description": "Julia Backend",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app"
+  },
+  "dependencies": {
+    "bcryptjs": "*",
+    "body-parser": "*",
+    "chart.js": "^2.7.2",
+    "config": "^2.0.1",
+    "cors": "*",
+    "dateformat": "*",
+    "email-templates": "^5.0.0",
+    "express": "*",
+    "express-async-errors": "^3.0.0",
+    "fs": "0.0.2",
+    "i18n": "^0.8.3",
+    "jsonwebtoken": "*",
+    "mongoose": "^5.2.14",
+    "mongoose-auto-increment": "*",
+    "multer": "*",
+    "nodemailer": "*",
+    "passport": "*",
+    "passport-jwt": "*",
+    "pug": "^2.0.3",
+    "rand-token": "*",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.2",
+    "web3": "^1.0.0-beta.36",
+    "winston": "^3.1.0"
+  },
+  "author": "Hojjat Jashnniloofar",
+  "license": "ISC"
+}

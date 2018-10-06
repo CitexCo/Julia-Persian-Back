@@ -1,0 +1,8 @@
+include ../header.pug 
+- var link = `${server}/#/forgetPassReset?email=${email}&resetpasswordtoken=${passwordToken}`
+div
+     p سلام،
+     p برای بازنشانی مجدد رمزعبور باید بر روی لینک زیر کلیک کنید و سپس در صفحه باز شده رمزعبور جدید برای خود انتخاب نمایید.
+          br
+          a(href=link) بازنشانی رمزعبور
+     include ../signature.pug 
