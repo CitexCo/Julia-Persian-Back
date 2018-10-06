@@ -17,6 +17,7 @@ const Account = require("../models/account");
 const User = require("../models/user");
 const Receipt = require("../models/receipt");
 const BurnRequest = require("../models/burnRequest");
+const TransferRequest = require("../models/transferRequest");
 const Exchanger = require("../models/exchanger");
 const Price = require("../models/price");
 
@@ -157,7 +158,6 @@ router.post("/create-receipt", [passport.authenticate("jwt", { session: false })
   const email = req.user.email;
   const amount = req.body.amount;
   const exchangerEmail = req.body.exchangerEmail;
-  console.log(exchangerEmail, "--");
 
   exchanger = await Exchanger.getExchangerByEmail(exchangerEmail);
   user = await User.getUserByEmail(email);
@@ -192,7 +192,6 @@ router.post(
       await receipt.save();
       throw new Error("Reciept Expired");
     }
-    console.log(receipt.userEmail);
 
     if (receipt.userEmail != email) {
       throw new Error("You can not view others' receipt");
@@ -260,10 +259,10 @@ router.post("/burn", [passport.authenticate("jwt", { session: false }), i18n, au
     status: "Pending"
   });
   burnRequest = await newBurnReq.save();
-  var locals = { amount: burnRequest.amount, BurnRequestNumber: burnRequest.BurnRequestNumber };
+  var locals = { amount: burnRequest.amount, burnRequestNumber: burnRequest.burnRequestNumber };
   await Email.sendMail(req.user.email, "submitBurnRequest", locals);
-  Log(req, "Info: BurnRequest number (" + burnRequest.BurnRequestNumber + ") Submited", req.user.email);
-  res.json({ success: true, msg: __("BurnRequest number %i Submited", burnRequest.BurnRequestNumber) });
+  Log(req, "Info: BurnRequest number (" + burnRequest.burnRequestNumber + ") Submited", req.user.email);
+  res.json({ success: true, msg: __("BurnRequest number %i Submited", burnRequest.burnRequestNumber) });
 });
 
 // request to burn some token and give mony
@@ -276,8 +275,8 @@ router.post("/burn-cancel", [passport.authenticate("jwt", { session: false }), i
   }
   burnRequest.status = "Canceled";
   await burnRequest.save();
-  Log(req, "Info: BurnRequest number (" + burnRequest.BurnRequestNumber + ") Canceled", req.user.email);
-  res.json({ success: true, msg: __("BurnRequest number %i Canceled", burnRequest.BurnRequestNumber) });
+  Log(req, "Info: BurnRequest number (" + burnRequest.burnRequestNumber + ") Canceled", req.user.email);
+  res.json({ success: true, msg: __("BurnRequest number %i Canceled", burnRequest.burnRequestNumber) });
 });
 
 // list all BurnRequests submited for user
@@ -296,6 +295,69 @@ router.get("/list-pending-burn", [passport.authenticate("jwt", { session: false 
   burnRequests = await BurnRequest.getUserBurnRequests(accountId, "Pending");
   Log(req, "Info: Pending BurnRequests list returned", req.user.email);
   res.json({ success: true, burnRequests: burnRequests });
+});
+
+// request to transfer some token and give money
+router.post("/transfer", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+  const amount = req.body.amount;
+  const password = req.body.password;
+  account = await Account.getAccountByEmail(req.user.email);
+  isMatch = await Account.comparePassword(password, account.password);
+
+  if (!isMatch) {
+    throw new Error("Wrong Password");
+  }
+  user = await User.getUserByEmail(req.user.email);
+  if (amount > user.balance) {
+    throw new Error("Requested amount greater than your balance");
+  }
+  const price = await Price.getLastPrice();
+  let newTransferReq = new TransferRequest({
+    user: req.user._id,
+    userEmail: req.user.email,
+    userComment: req.body.comment,
+    userSubmitDate: new Date(),
+    amount: amount,
+    tokenPrice: price.price,
+    status: "Pending"
+  });
+  transferRequest = await newTransferReq.save();
+  var locals = { amount: transferRequest.amount, transferRequestNumber: transferRequest.transferRequestNumber };
+  await Email.sendMail(req.user.email, "submitTransferRequest", locals);
+  Log(req, "Info: TransferRequest number (" + transferRequest.transferRequestNumber + ") Submited", req.user.email);
+  res.json({ success: true, msg: __("TransferRequest number %i Submited", transferRequest.transferRequestNumber) });
+});
+
+// request to transfer some token and give mony
+router.post("/transfer-cancel", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+  const accountId = req.user._id;
+  const transferRequestNumber = Number(req.body.transferRequestNumber);
+  transferRequest = await TransferRequest.getTransferRequestByNumber(transferRequestNumber);
+  if (String(transferRequest.user._id) != String(accountId)) {
+    throw new Error("You can not cancel others' transferRequest");
+  }
+  transferRequest.status = "Canceled";
+  await transferRequest.save();
+  Log(req, "Info: TransferRequest number (" + transferRequest.transferRequestNumber + ") Canceled", req.user.email);
+  res.json({ success: true, msg: __("TransferRequest number %i Canceled", transferRequest.transferRequestNumber) });
+});
+
+// list all TransferRequests submited for user
+router.get("/list-transfer", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+  const accountId = req.user._id;
+
+  transferRequests = await TransferRequests.getUserTransferRequests(accountId);
+  Log(req, "Info: TransferRequests list returned", req.user.email);
+  res.json({ success: true, transferRequest: transferRequests });
+});
+
+// list all Pending TransferRequests submited for user
+router.get("/list-pending-transfer", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+  const accountId = req.user._id;
+
+  transferRequests = await TransferRequest.getUserTransferRequests(accountId, "Pending");
+  Log(req, "Info: Pending TransferRequests list returned", req.user.email);
+  res.json({ success: true, transferRequests: transferRequests });
 });
 
 module.exports = router;

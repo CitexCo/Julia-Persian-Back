@@ -1,5 +1,5 @@
 const Admin = require("../models/admin");
-const Log = require("../middlewares/log");
+const winston = require("winston");
 
 module.exports = async function(req, res, next) {
   switch (req.baseUrl) {
@@ -16,7 +16,9 @@ module.exports = async function(req, res, next) {
 
   if (type != "Admin") {
     if (req.user.accountType != type) {
-      Log(req, "Error: Unauthorized action", req.user.email);
+      throw new Error("Unauthorized action");
+      // winston.error({ message: "Unauthorized action by " + req.user.email + " on " + req.originalUrl, stack: err.stack });
+
       return res.sendStatus(401);
     } else {
       next();
@@ -53,6 +55,12 @@ module.exports = async function(req, res, next) {
       case "/list-pending-burn":
       case "/approve-burn":
       case "/reject-burn":
+      case "/list-transfer":
+      case "/list-approved-transfer":
+      case "/list-rejected-transfer":
+      case "/list-pending-transfer":
+      case "/approve-transfer":
+      case "/reject-transfer":
         role = ["financeManager"];
         break;
       case "/tickets/answer":
@@ -68,7 +76,9 @@ module.exports = async function(req, res, next) {
     hasRole = await Admin.hasRole(admin, role);
 
     if (!hasRole) {
-      Log(req, "Error: Unauthorized action", req.user.email);
+      throw new Error("Unauthorized action");
+
+      // winston.error({ message: "Unauthorized action by " + req.user.email + " on " + req.originalUrl, stack: err.stack });
       return res.sendStatus(401);
     } else {
       next();

@@ -22,14 +22,14 @@ const BurnRequestSchema = mongoose.Schema({
 
 BurnRequestSchema.plugin(autoIncrement.plugin, {
   model: "BurnRequest",
-  field: "BurnRequestNumber",
+  field: "burnRequestNumber",
   startAt: 10000
 });
 
 const BurnRequest = (module.exports = mongoose.model("BurnRequest", BurnRequestSchema));
 
-module.exports.getBurnRequestByNumber = async function(BurnRequestNumber) {
-  const query = { BurnRequestNumber: BurnRequestNumber };
+module.exports.getBurnRequestByNumber = async function(burnRequestNumber) {
+  const query = { burnRequestNumber: burnRequestNumber };
 
   burnRequest = await BurnRequest.findOne(query);
   if (!burnRequest) {

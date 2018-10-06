@@ -27,7 +27,6 @@ module.exports.getExchangerById = async function(id) {
 
 module.exports.getExchangerByEmail = async function(email) {
   const query = { email: email };
-  console.log(query);
 
   exchanger = await Exchanger.findOne(query);
 

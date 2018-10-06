@@ -12,6 +12,7 @@ const Receipt = require("../models/receipt");
 const Price = require("../models/price");
 const ForgottenPasswordToken = require("../models/forgotPassword");
 const BurnRequest = require("../models/burnRequest");
+const TransferRequest = require("../models/transferRequest");
 
 const Log = require("../middlewares/log");
 const Email = require("../middlewares/email");
@@ -35,7 +36,6 @@ router.post(
   "/register-exchanger",
   [passport.authenticate("jwt", { session: false }), i18n, autorize, upload.single("image")],
   async (req, res, next) => {
-    // console.log(req.body);
     // roles = [req.body.roles];
     console.log(req.body.roles);
     const enabled = req.body.enabled;
@@ -293,7 +293,7 @@ router.post("/approve-receipt", [passport.authenticate("jwt", { session: false }
   await receipt.save();
 
   await user.save();
-  Log(req, "Info: Receipt number (" + receipt.receiptNumber + ") Approved by admin", req.user.email);
+  Log(req, "Info: Receipt number (" + receipt.receiptNumber + ") Approved", req.user.email);
   res.json({ success: true, msg: __("Receipt number %i approved successfuly", receipt.receiptNumber) });
 });
 
@@ -312,7 +312,7 @@ router.post("/reject-receipt", [passport.authenticate("jwt", { session: false })
   receipt.adminSubmitDate = new Date();
   receipt.status = "Rejected";
   receipt = await receipt.save();
-  Log(req, "Info: Receipt number (" + receipt.receiptNumber + ") rejected by admin", req.user.email);
+  Log(req, "Info: Receipt number (" + receipt.receiptNumber + ") rejected", req.user.email);
   res.json({ success: true, msg: __("Receipt number %i rejected successfuly", receipt.receiptNumber) });
 });
 
@@ -366,12 +366,11 @@ router.post("/approve-burn", [passport.authenticate("jwt", { session: false }), 
   await user.save();
 
   await burnRequest.save();
-  var locals = { amount: burnRequest.amount, BurnRequestNumber: burnRequest.BurnRequestNumber, approved: true };
+  var locals = { amount: burnRequest.amount, burnRequestNumber: burnRequest.burnRequestNumber, approved: true };
   await Email.sendMail(req.user.email, "responseBurnRequest", locals);
-  Log(req, "Info: BurnRequest number (" + burnRequest.BurnRequestNumber + ") Approved by admin", req.user.email);
-  console.log(burnRequest);
+  Log(req, "Info: BurnRequest number (" + burnRequest.burnRequestNumber + ") Approved", req.user.email);
 
-  res.json({ success: true, msg: __("BurnRequest number %i approved", burnRequest.BurnRequestNumber) });
+  res.json({ success: true, msg: __("BurnRequest number %i approved", burnRequest.burnRequestNumber) });
 });
 
 // reject burn by admin
@@ -389,9 +388,87 @@ router.post("/reject-burn", [passport.authenticate("jwt", { session: false }), i
   burnRequest.status = "Rejected";
   await burnRequest.save();
 
-  var locals = { amount: burnRequest.amount, BurnRequestNumber: burnRequest.BurnRequestNumber, approved: false };
+  var locals = { amount: burnRequest.amount, burnRequestNumber: burnRequest.burnRequestNumber, approved: false };
   await Email.sendMail(req.user.email, "responseBurnRequest", locals);
-  Log(req, "Info: BurnRequest number (" + burnRequest.BurnRequestNumber + ") Rejected by admin", req.user.email);
-  res.json({ success: true, msg: __("BurnRequest number %i rejected", burnRequest.BurnRequestNumber) });
+  Log(req, "Info: BurnRequest number (" + burnRequest.burnRequestNumber + ") Rejected", req.user.email);
+  res.json({ success: true, msg: __("BurnRequest number %i rejected", burnRequest.burnRequestNumber) });
+});
+
+// list all TransferRequest submited
+router.get("/list-burn", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+  transferRequests = await TransferRequest.getAllTransferRequests();
+  Log(req, "Info: TransferRequests list returned", req.user.email);
+  res.json({ success: true, transferRequests: transferRequests });
+});
+
+// list all TransferRequest approved by admin
+router.get("/list-approved-burn", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+  transferRequests = await TransferRequest.getAllTransferRequests("Approved");
+  Log(req, "Info: Approved TransferRequests list returned", req.user.email);
+  res.json({ success: true, transferRequests: transferRequests });
+});
+
+// list all TransferRequest rejected by admin
+router.get("/list-rejected-burn", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+  transferRequests = await TransferRequest.getAllTransferRequests("Rejected");
+  Log(req, "Info: Rejected TransferRequests list returned", req.user.email);
+  res.json({ success: true, transferRequests: transferRequests });
+});
+
+// list all TransferRequest submited by user and ready for admin response
+router.get("/list-pending-burn", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+  transferRequests = await TransferRequest.getAllTransferRequests("Pending");
+  Log(req, "Info: Pending TransferRequests list returned", req.user.email);
+  res.json({ success: true, transferRequests: transferRequests });
+});
+
+// approve burn by admin
+router.post("/approve-burn", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+  const transferRequestNumber = Number(req.body.transferRequestNumber);
+
+  transferRequest = await TransferRequest.getTransferRequestByNumber(transferRequestNumber);
+
+  if (transferRequest.status != "Pending") {
+    throw new Error("Admin can approve pending transferRequests only");
+  }
+  transferRequest.admin = req.user._id;
+  transferRequest.adminEmail = req.user.email;
+  transferRequest.adminComment = req.body.comment;
+  transferRequest.adminSubmitDate = new Date();
+  transferRequest.status = "Approved";
+  user = await User.getUserByEmail(transferRequest.userEmail);
+  if (transferRequest.amount > user.balance) {
+    throw new Error("Requested amount greater than user's balance");
+  }
+  user.balance = user.balance - transferRequest.amount;
+  await user.save();
+
+  await transferRequest.save();
+  var locals = { amount: transferRequest.amount, transferRequestNumber: transferRequest.transferRequestNumber, approved: true };
+  await Email.sendMail(req.user.email, "responseTransferRequest", locals);
+  Log(req, "Info: TransferRequest number (" + transferRequest.transferRequestNumber + ") Approved", req.user.email);
+
+  res.json({ success: true, msg: __("TransferRequest number %i approved", transferRequest.transferRequestNumber) });
+});
+
+// reject burn by admin
+router.post("/reject-burn", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+  const transferRequestNumber = Number(req.body.transferRequestNumber);
+
+  transferRequest = await TransferRequest.getTransferRequestByNumber(transferRequestNumber);
+  if (transferRequest.status != "Pending") {
+    throw new Error("Admin can reject pending transferRequests only");
+  }
+  transferRequest.admin = req.user._id;
+  transferRequest.adminEmail = req.user.email;
+  transferRequest.adminComment = req.body.comment;
+  transferRequest.adminSubmitDate = new Date();
+  transferRequest.status = "Rejected";
+  await transferRequest.save();
+
+  var locals = { amount: transferRequest.amount, transferRequestNumber: transferRequest.transferRequestNumber, approved: false };
+  await Email.sendMail(req.user.email, "responseTransferRequest", locals);
+  Log(req, "Info: TransferRequest number (" + transferRequest.transferRequestNumber + ") Rejected", req.user.email);
+  res.json({ success: true, msg: __("TransferRequest number %i rejected", transferRequest.transferRequestNumber) });
 });
 module.exports = router;

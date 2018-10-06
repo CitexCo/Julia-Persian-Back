@@ -8,6 +8,7 @@ module.exports = function() {
     if (error.stack) {
       stack = error.stack.replace(/[\r\n]+/g, "");
     }
+
     return `{"timestamp":"${error.timestamp}", "level":"${error.level}", "message":"${error.message}", "stack":"${stack}"}`;
   });
 
@@ -45,6 +46,6 @@ module.exports = function() {
   });
 
   process.on("unhandledRejection", ex => {
-    throw new Error(ex);
+    throw new SyntaxError(ex);
   });
 };
