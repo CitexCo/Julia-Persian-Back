@@ -293,6 +293,8 @@ router.post("/approve-receipt", [passport.authenticate("jwt", { session: false }
   await receipt.save();
 
   await user.save();
+  var locals = { amount: receipt.amount, receiptRequestNumber: receipt.receiptNumber, approved: true };
+  await Email.sendMail(req.user.email, "responseReceipt", locals);
   Log(req, "Receipt number (" + receipt.receiptNumber + ") Approved", req.user.email);
   res.json({ success: true, msg: __("Receipt number %i approved successfuly", receipt.receiptNumber) });
 });
@@ -312,6 +314,8 @@ router.post("/reject-receipt", [passport.authenticate("jwt", { session: false })
   receipt.adminSubmitDate = new Date();
   receipt.status = "Rejected";
   receipt = await receipt.save();
+  var locals = { amount: receipt.amount, receiptRequestNumber: receipt.receiptNumber, approved: false };
+  await Email.sendMail(req.user.email, "responseReceipt", locals);
   Log(req, "Receipt number (" + receipt.receiptNumber + ") rejected", req.user.email);
   res.json({ success: true, msg: __("Receipt number %i rejected successfuly", receipt.receiptNumber) });
 });

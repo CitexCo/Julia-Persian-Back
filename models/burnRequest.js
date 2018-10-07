@@ -44,7 +44,7 @@ module.exports.getUserBurnRequests = async function(userId, reqStatus) {
     query["status"] = reqStatus;
   }
 
-  return await BurnRequest.find(query, { _id: 0, verificationToken: 0, verificationTokenExpire: 0 })
+  return await BurnRequest.find(query, { _id: 0 })
     .sort("-date")
     .exec();
 };
@@ -56,7 +56,7 @@ module.exports.getAllBurnRequests = async function(reqStatus) {
     query["status"] = reqStatus;
   }
 
-  return await BurnRequest.find(query, { _id: 0, verificationToken: 0, verificationTokenExpire: 0 })
+  return await BurnRequest.find(query, { _id: 0 })
     .sort("-date")
     .exec();
 };

@@ -44,7 +44,7 @@ module.exports.getUserTransferRequests = async function(userId, reqStatus) {
     query["status"] = reqStatus;
   }
 
-  return await TransferRequest.find(query, { _id: 0, verificationToken: 0, verificationTokenExpire: 0 })
+  return await TransferRequest.find(query, { _id: 0 })
     .sort("-date")
     .exec();
 };
@@ -56,7 +56,7 @@ module.exports.getAllTransferRequests = async function(reqStatus) {
     query["status"] = reqStatus;
   }
 
-  return await TransferRequest.find(query, { _id: 0, verificationToken: 0, verificationTokenExpire: 0 })
+  return await TransferRequest.find(query, { _id: 0 })
     .sort("-date")
     .exec();
 };
