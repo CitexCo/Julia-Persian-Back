@@ -17,7 +17,6 @@ module.exports = async function(app) {
   app.use(cors());
 
   // Set Static Folder
-  console.log(__dirname + "/../public");
   app.use(express.static(path.join(__dirname, "/../public")));
   app.use(express.static(path.join(__dirname, "/../uploads")));
 
