@@ -6,7 +6,10 @@ yarn-debug.log*
 yarn-error.log*
 
 # Logs
-config
+**/config/setting.js
+**/config/email.js
+**/config/admin.js
+**/config/conf.txt
 
 #Uploads
 uploads/
