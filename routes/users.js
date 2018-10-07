@@ -40,7 +40,7 @@ router.post("/register", i18n, async (req, res, next) => {
   account = await User.addUser(email, password, referal);
   var locals = { server: config.serverAddr, email: account.email, emailVerificationToken: account.emailVerificationToken };
   await Email.sendMail(account.email, "register", locals);
-  Log(req, "Info: User registered successfuly", account.email);
+  Log(req, "User registered successfuly", account.email);
   return res.json({
     success: true,
     msg: __("Your account created successfuly, please verify your email via verification link sent to your meilbox")
@@ -54,21 +54,21 @@ router.get("/kyc-code", [passport.authenticate("jwt", { session: false }), i18n,
   user = await User.getUserByEmail(email);
   user.KYCCode = code;
   await user.save();
-  Log(req, "Info: KYCCode Returned", user.email);
+  Log(req, "KYCCode Returned", user.email);
   return res.json({ success: true, code: code });
 });
 
 // user profile information
 router.get("/profile", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
   user = await User.getUserByEmail(req.user.email);
-  Log(req, "Info: User profile returned", req.user.email);
+  Log(req, "User profile returned", req.user.email);
   res.json({ success: true, user: user });
 });
 
 // list All exchangers
 router.get("/exchangers", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
   exchangers = await Exchanger.getEnabledExchangersList();
-  Log(req, "Info: All exchangers list returned", req.user.email);
+  Log(req, "All exchangers list returned", req.user.email);
   res.json({ success: true, exchangers: exchangers });
 });
 
@@ -76,7 +76,7 @@ router.get("/exchangers", [passport.authenticate("jwt", { session: false }), i18
 router.post("/exchanger", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
   exchangerEmail = req.body.exchangerEmail;
   exchanger = await Exchanger.getExchangerByEmail(exchangerEmail);
-  Log(req, "Info: Exchanger profile returned", req.user.email);
+  Log(req, "Exchanger profile returned", req.user.email);
   res.json({ success: true, exchanger: exchanger });
 });
 
@@ -122,7 +122,7 @@ router.post("/updatekyc", [passport.authenticate("jwt", { session: false }), i18
       throw ex;
     }
   }
-  Log(req, "Info: User KYC Updated", user.email);
+  Log(req, "User KYC Updated", user.email);
   return res.json({ success: true, msg: __("Your KYC Updated, please wait to admin verify them") });
 });
 
@@ -139,7 +139,7 @@ router.post("/sign-contract", [passport.authenticate("jwt", { session: false }),
     user.SignedContract = true;
 
     await user.save();
-    Log(req, "Info: Contract (" + contractType + ") signed by user", req.user.email);
+    Log(req, "Contract (" + contractType + ") signed by user", req.user.email);
   }
 });
 
@@ -149,7 +149,7 @@ router.get("/getreferal", [passport.authenticate("jwt", { session: false }), i18
   user = await User.getUserByEmail(email);
 
   referals = await User.getUserReferals(user._id);
-  Log(req, "Info: Get Refeals successfuly", req.user.email);
+  Log(req, "Get Refeals successfuly", req.user.email);
   return res.json({ success: true, referals: referals });
 });
 
@@ -174,7 +174,7 @@ router.post("/create-receipt", [passport.authenticate("jwt", { session: false })
   });
 
   receipt = await newReceipt.save();
-  Log(req, "Info: Receipt number (" + receipt.receiptNumber + ") Created", req.user.email);
+  Log(req, "Receipt number (" + receipt.receiptNumber + ") Created", req.user.email);
   res.json({ success: true, msg: __("Receipt number %i created successfuly", receipt.receiptNumber), receipt: receipt });
 });
 
@@ -202,7 +202,7 @@ router.post(
     receipt.userSubmitDate = new Date();
     receipt.userComment = comment;
     receipt = await receipt.save();
-    Log(req, "Info: Receipt number (" + receipt.receiptNumber + ") Created", req.user.email);
+    Log(req, "Receipt number (" + receipt.receiptNumber + ") Created", req.user.email);
     res.json({ success: true, msg: __("Your documnets for receipt number %i uploaded successfuly", receipt.receiptNumber) });
   }
 );
@@ -212,7 +212,7 @@ router.get("/list-receipt", [passport.authenticate("jwt", { session: false }), i
   const email = req.user.email;
 
   receipts = await Receipt.getUserReceipts(email);
-  Log(req, "Info: Receipts list returned", req.user.email);
+  Log(req, "Receipts list returned", req.user.email);
   res.json({ success: true, receipts: receipts });
 });
 
@@ -221,7 +221,7 @@ router.get("/list-pending-receipt", [passport.authenticate("jwt", { session: fal
   const email = req.user.email;
 
   receipts = await Receipt.getUserReceipts(email, "Pending");
-  Log(req, "Info: Pending Receipts list returned", req.user.email);
+  Log(req, "Pending Receipts list returned", req.user.email);
   res.json({ success: true, receipts: receipts });
 });
 
@@ -230,7 +230,7 @@ router.get("/balance", [passport.authenticate("jwt", { session: false }), i18n, 
   const email = req.user.email;
 
   user = await User.getUserByEmail(email);
-  Log(req, "Info: Balance returned", req.user.email);
+  Log(req, "Balance returned", req.user.email);
   res.json({ success: true, balance: user.balance });
 });
 
@@ -261,7 +261,7 @@ router.post("/burn", [passport.authenticate("jwt", { session: false }), i18n, au
   burnRequest = await newBurnReq.save();
   var locals = { amount: burnRequest.amount, burnRequestNumber: burnRequest.burnRequestNumber };
   await Email.sendMail(req.user.email, "submitBurnRequest", locals);
-  Log(req, "Info: BurnRequest number (" + burnRequest.burnRequestNumber + ") Submited", req.user.email);
+  Log(req, "BurnRequest number (" + burnRequest.burnRequestNumber + ") Submited", req.user.email);
   res.json({ success: true, msg: __("BurnRequest number %i Submited", burnRequest.burnRequestNumber) });
 });
 
@@ -275,7 +275,7 @@ router.post("/burn-cancel", [passport.authenticate("jwt", { session: false }), i
   }
   burnRequest.status = "Canceled";
   await burnRequest.save();
-  Log(req, "Info: BurnRequest number (" + burnRequest.burnRequestNumber + ") Canceled", req.user.email);
+  Log(req, "BurnRequest number (" + burnRequest.burnRequestNumber + ") Canceled", req.user.email);
   res.json({ success: true, msg: __("BurnRequest number %i Canceled", burnRequest.burnRequestNumber) });
 });
 
@@ -284,7 +284,7 @@ router.get("/list-burn", [passport.authenticate("jwt", { session: false }), i18n
   const accountId = req.user._id;
 
   burnRequests = await BurnRequests.getUserBurnRequests(accountId);
-  Log(req, "Info: BurnRequests list returned", req.user.email);
+  Log(req, "BurnRequests list returned", req.user.email);
   res.json({ success: true, burnRequest: burnRequests });
 });
 
@@ -293,7 +293,7 @@ router.get("/list-pending-burn", [passport.authenticate("jwt", { session: false 
   const accountId = req.user._id;
 
   burnRequests = await BurnRequest.getUserBurnRequests(accountId, "Pending");
-  Log(req, "Info: Pending BurnRequests list returned", req.user.email);
+  Log(req, "Pending BurnRequests list returned", req.user.email);
   res.json({ success: true, burnRequests: burnRequests });
 });
 
@@ -324,7 +324,7 @@ router.post("/transfer", [passport.authenticate("jwt", { session: false }), i18n
   transferRequest = await newTransferReq.save();
   var locals = { amount: transferRequest.amount, transferRequestNumber: transferRequest.transferRequestNumber };
   await Email.sendMail(req.user.email, "submitTransferRequest", locals);
-  Log(req, "Info: TransferRequest number (" + transferRequest.transferRequestNumber + ") Submited", req.user.email);
+  Log(req, "TransferRequest number (" + transferRequest.transferRequestNumber + ") Submited", req.user.email);
   res.json({ success: true, msg: __("TransferRequest number %i Submited", transferRequest.transferRequestNumber) });
 });
 
@@ -338,7 +338,7 @@ router.post("/transfer-cancel", [passport.authenticate("jwt", { session: false }
   }
   transferRequest.status = "Canceled";
   await transferRequest.save();
-  Log(req, "Info: TransferRequest number (" + transferRequest.transferRequestNumber + ") Canceled", req.user.email);
+  Log(req, "TransferRequest number (" + transferRequest.transferRequestNumber + ") Canceled", req.user.email);
   res.json({ success: true, msg: __("TransferRequest number %i Canceled", transferRequest.transferRequestNumber) });
 });
 
@@ -347,7 +347,7 @@ router.get("/list-transfer", [passport.authenticate("jwt", { session: false }), 
   const accountId = req.user._id;
 
   transferRequests = await TransferRequests.getUserTransferRequests(accountId);
-  Log(req, "Info: TransferRequests list returned", req.user.email);
+  Log(req, "TransferRequests list returned", req.user.email);
   res.json({ success: true, transferRequest: transferRequests });
 });
 
@@ -356,7 +356,7 @@ router.get("/list-pending-transfer", [passport.authenticate("jwt", { session: fa
   const accountId = req.user._id;
 
   transferRequests = await TransferRequest.getUserTransferRequests(accountId, "Pending");
-  Log(req, "Info: Pending TransferRequests list returned", req.user.email);
+  Log(req, "Pending TransferRequests list returned", req.user.email);
   res.json({ success: true, transferRequests: transferRequests });
 });
 

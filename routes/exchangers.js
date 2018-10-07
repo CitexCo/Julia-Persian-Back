@@ -46,7 +46,7 @@ router.post(
     receipt.exchangerComment = comment;
     receipt.exchangerSubmitDate = new Date();
     receipt = await receipt.save();
-    Log(req, "Info: Receipt number (" + receipt.receiptNumber + ") Created", req.user.email);
+    Log(req, "Receipt number (" + receipt.receiptNumber + ") Created", req.user.email);
     res.json({ success: true, msg: __("Your documnets for receipt number %i uploaded successfuly", receipt.receiptNumber) });
   }
 );
@@ -60,7 +60,7 @@ router.post("/search-receipt", [passport.authenticate("jwt", { session: false })
     await receipt.save();
     throw new Error("Reciept Expired");
   }
-  Log(req, "Info: Receipt number (" + receipt.receiptNumber + ") returned by search", req.user.email);
+  Log(req, "Receipt number (" + receipt.receiptNumber + ") returned by search", req.user.email);
   res.json({ success: true, receipt: receipt });
 });
 
@@ -69,14 +69,14 @@ router.post("/get-user", [passport.authenticate("jwt", { session: false }), i18n
   const userEmail = req.body.userEmail;
 
   user = await User.getUserByEmail(userEmail);
-  Log(req, "Info: Get user KYC info successfuly", req.user.email);
+  Log(req, "Get user KYC info successfuly", req.user.email);
   return res.json({ success: true, user: user });
 });
 
 // exchanger profile information
 router.get("/profile", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
   exchanger = await Exchanger.getExchangerByEmail(req.user.email);
-  Log(req, "Info: User profile returned", req.user.email);
+  Log(req, "User profile returned", req.user.email);
   res.json({ success: true, exchanger: exchanger });
 });
 
@@ -85,7 +85,7 @@ router.get("/list-receipt", [passport.authenticate("jwt", { session: false }), i
   const email = req.user.email;
 
   receipts = await Receipt.getExchangerReceipts(email);
-  Log(req, "Info: Receipts list returned", req.user.email);
+  Log(req, "Receipts list returned", req.user.email);
   res.json({ success: true, receipts: receipts });
 });
 
@@ -94,7 +94,7 @@ router.get("/list-pending-receipt", [passport.authenticate("jwt", { session: fal
   const email = req.user.email;
 
   receipts = await Receipt.getExchangerReceipts(email, "Pending");
-  Log(req, "Info: Receipts list returned", req.user.email);
+  Log(req, "Receipts list returned", req.user.email);
   res.json({ success: true, receipts: receipts });
 });
 

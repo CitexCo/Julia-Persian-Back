@@ -14,18 +14,18 @@ const TicketSchema = mongoose.Schema({
   attachmentAddress: { type: String },
   attachmentName: { type: String },
   createdate: { type: Date, default: Date.now() },
-  lastReplayDate: { type: Date, default: Date.now() },
+  lastreplyDate: { type: Date, default: Date.now() },
   recieveEmail: { type: Boolean, default: true },
   status: {
     type: String,
     enum: ["Open", "Answered", "Closed", "Canceled"],
     default: "Open"
   },
-  replays: [
+  replys: [
     {
       userEmail: { type: String, required: true },
       description: { type: String, required: true },
-      replayDate: { type: Date, default: Date.now() }
+      replyDate: { type: Date, default: Date.now() }
     }
   ]
 });
@@ -59,7 +59,7 @@ async function closeOldAnsweredTickets() {
   var date = new Date() - config.AutoClodeTickets;
   providedDate = new Date(date);
 
-  const query = { lastReplayDate: { $lt: providedDate }, status: "Answered" };
+  const query = { lastreplyDate: { $lt: providedDate }, status: "Answered" };
 
   tickets = await Ticket.find(query);
   tickets.forEach(async ticket => {
@@ -69,7 +69,7 @@ async function closeOldAnsweredTickets() {
     }
     ticket.status = "Closed";
     await icket.save();
-    Log(req, "Info: Ticket number(" + ticket.ticketNumber + ") Closed", "SYSTEM");
+    Log(req, "Ticket number(" + ticket.ticketNumber + ") Closed", "SYSTEM");
   });
   //Repeat Function every minute
   setTimeout(closeOldAnsweredTickets, 60000);

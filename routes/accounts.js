@@ -28,7 +28,7 @@ router.post("/authenticate", i18n, async (req, res, next) => {
     const token = jwt.sign(account.toJSON(), config.secret, {
       expiresIn: 604800 // 1 week in sec
     });
-    Log(req, "Info: User authenticated successfuly", email);
+    Log(req, "User authenticated successfuly", email);
     account["password"] = "***";
     return res.json({
       success: true,
@@ -52,7 +52,7 @@ router.get("/verifyemail", i18n, async (req, res, next) => {
   } else {
     account.emailVerified = true;
     await account.save();
-    Log(req, "Info: Email Verified successfuly", email);
+    Log(req, "Email Verified successfuly", email);
     return res.redirect('/panel/#/login?msg="' + __("Email Verified successfuly") + '"');
   }
 });
@@ -85,7 +85,7 @@ router.post("/resetpassword", i18n, async (req, res, next) => {
     } else {
       account = await Account.getAccountByEmail(email);
       account = await Account.changePassword(account, password);
-      Log(req, "Info: Password reset successfuly", account.email);
+      Log(req, "Password reset successfuly", account.email);
       return res.json({
         success: true,
         msg: __("Password changed successfuly")
@@ -104,7 +104,7 @@ router.post("/changepassword", [passport.authenticate("jwt", { session: false })
   isMatch = await Account.comparePassword(oldPassword, account.password);
   if (isMatch) {
     account = await Account.changePassword(account, newPassword);
-    Log(req, "Info: Password changed successfuly", account.email);
+    Log(req, "Password changed successfuly", account.email);
     return res.json({
       success: true,
       msg: __("Password changed successfuly")

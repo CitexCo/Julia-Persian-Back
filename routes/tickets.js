@@ -7,8 +7,8 @@ const path = require("path");
 
 const Log = require("../middlewares/log");
 const Ticket = require("../models/ticket");
-const User = require("../models/user");
 const Email = require("../middlewares/email");
+const i18n = require("../middlewares/i18n");
 const autorize = require("../middlewares/authorize");
 
 var storage = multer.diskStorage({
@@ -21,9 +21,8 @@ var storage = multer.diskStorage({
   }
 });
 var upload = multer({ storage: storage });
-//TODO i18n
 // Create new ticket
-router.post("/create", passport.authenticate("jwt", { session: false }), upload.single("attachment"), async (req, res, next) => {
+router.post("/create", [passport.authenticate("jwt", { session: false }), i18n, upload.single("attachment")], async (req, res, next) => {
   const userEmail = req.user.email;
   let newTicket = new Ticket({
     userEmail: userEmail,
@@ -37,113 +36,117 @@ router.post("/create", passport.authenticate("jwt", { session: false }), upload.
     newTicket.attachmentName = req.file.originalname;
   }
   await newTicket.save();
-  Log(req, "Info: Ticket number " + newTicket.ticketNumber + " Created", req.user.email);
-  res.json({ success: true, msg: "Ticket number " + newTicket.ticketNumber + " Created" });
+  Log(req, "Ticket number " + newTicket.ticketNumber + " Created", req.user.email);
+  res.json({ success: true, msg: __("Ticket number %i created successfuly", newTicket.ticketNumber) });
 });
 
 // Cancel own ticket
-router.post("/cancel", passport.authenticate("jwt", { session: false }), async (req, res, next) => {
+router.post("/cancel", [passport.authenticate("jwt", { session: false }), i18n], async (req, res, next) => {
   const userEmail = req.user.email;
   const ticketNumber = req.body.ticketNumber;
 
   ticket = await Ticket.getTicketByNumber(ticketNumber);
   if (ticket.userEmail != userEmail) {
-    throw new Error("User can not cancel others' ticket");
+    throw new Error("You can not cancel others' ticket");
   } else {
     ticket.status = "Canceled";
     await ticket.save();
-    Log(req, "Info: Ticket Number(" + ticketNumber + ") Canceled Successfuly", req.user.email);
-    res.json({ success: true, msg: "Ticket Number(" + ticketNumber + ") Canceled Successfuly" });
+    Log(req, "Ticket number " + ticketNumber + " Canceled Successfuly", req.user.email);
+    res.json({ success: true, msg: __("Ticket number %i canceled successfuly", ticketNumber) });
   }
 });
 
 // Resolve own ticket
-router.post("/resolve", passport.authenticate("jwt", { session: false }), async (req, res, next) => {
+router.post("/resolve", [passport.authenticate("jwt", { session: false }), i18n], async (req, res, next) => {
   const userEmail = req.user.email;
   const ticketNumber = req.body.ticketNumber;
 
   ticket = await Ticket.getTicketByNumber(ticketNumber);
   if (ticket.userEmail != userEmail) {
-    throw new Error("User can not resolve others' ticket");
+    throw new Error("You can not close others' ticket");
   } else {
     ticket.status = "Closed";
     await ticket.save();
-    Log(req, "Info: Ticket Number(" + ticketNumber + ") Closed Successfuly", req.user.email);
-    res.json({ success: true, msg: "Ticket Number(" + ticketNumber + ") Closed Successfuly" });
+    Log(req, "Ticket number " + ticketNumber + " Closed Successfuly", req.user.email);
+    res.json({ success: true, msg: __("Ticket number %i closed successfuly", ticketNumber) });
   }
 });
 
-// Replay own ticket
-router.post("/replay", passport.authenticate("jwt", { session: false }), async (req, res, next) => {
+// reply own ticket
+router.post("/reply", [passport.authenticate("jwt", { session: false }), i18n], async (req, res, next) => {
   const userEmail = req.user.email;
   const ticketNumber = req.body.ticketNumber;
-  const replayDesc = req.body.replayDesc;
+  const replyDesc = req.body.replyDesc;
 
   ticket = await Ticket.getTicketByNumber(ticketNumber);
   if (ticket.userEmail != userEmail) {
-    throw new Error("User can not replay others' ticket");
+    throw new Error("You can not reply others' ticket");
   } else {
-    let replay = { userEmail: userEmail, description: replayDesc };
-    ticket.replays.push(replay);
-    ticket.lastReplayDate = new Date();
+    let reply = { userEmail: userEmail, description: replyDesc };
+    ticket.replys.push(reply);
+    ticket.lastreplyDate = new Date();
     ticket.status = "Open";
     ticket.save();
-    Log(req, "Info: Ticket Number(" + ticketNumber + ") Replayed Successfuly", req.user.email);
-    res.json({ success: true, msg: "Ticket Number(" + ticketNumber + ") Replayed Successfuly" });
+    Log(req, "Ticket number(" + ticketNumber + ") replied Successfuly", req.user.email);
+    res.json({ success: true, msg: __("Ticket number %i replied successfuly", ticketNumber) });
   }
 });
 
 // Answer ticket by admin
-router.post("/answer", [passport.authenticate("jwt", { session: false }), autorize], async (req, res, next) => {
+router.post("/answer", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
   const userEmail = req.user.email;
   const ticketNumber = req.body.ticketNumber;
   const answerDesc = req.body.answerDesc;
+  const isClose = req.body.isClose;
 
   ticket = await Ticket.getTicketByNumber(ticketNumber);
 
-  let replay = { userEmail: userEmail, description: answerDesc };
-  ticket.replays.push(replay);
-  ticket.lastReplayDate = new Date();
+  let reply = { userEmail: userEmail, description: answerDesc };
+  ticket.replys.push(reply);
+  ticket.lastreplyDate = new Date();
   ticket.status = "Answered";
+  if (isClose) {
+    ticket.status = "Closed";
+  }
   await ticket.save();
   // if ticket.reciveEmail == true then send email to user and notify about answer ticket
   if (ticket.recieveEmail) {
     var locals = { ticketNumber: ticket.ticketNumber, subject: ticket.subject, answerDesc: answerDesc };
     await Email.sendMail(ticket.userEmail, "ticketAnswer", locals);
   }
-  Log(req, "Info: Ticket Number(" + ticketNumber + ") Answered Successfuly", req.user.email);
-  res.json({ success: true, msg: "Ticket Number(" + ticketNumber + ") Answered Successfuly" });
+  Log(req, "Ticket number(" + ticketNumber + ") answered Successfuly", req.user.email);
+  res.json({ success: true, msg: __("Ticket number %i answered successfuly", ticketNumber) });
 });
 
 // List All tickets , all Status By Admin
-router.get("/listall", [passport.authenticate("jwt", { session: false }), autorize], async (req, res, next) => {
+router.get("/listall", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
   tickets = await Ticket.getAllTicket("", "");
-  Log(req, "Info: Admin Gets All Tickets", req.user.email);
+  Log(req, "Admin Gets All Tickets", req.user.email);
   return res.json({ success: true, tickets: tickets });
 });
 
 // List All Open tickets By Admin
-router.get("/listallopen", [passport.authenticate("jwt", { session: false }), autorize], async (req, res, next) => {
+router.get("/listallopen", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
   tickets = await Ticket.getAllTicket("", "Open");
-  Log(req, "Info: Admin Gets All Tickets", req.user.email);
+  Log(req, "Admin Gets All Tickets", req.user.email);
   return res.json({ success: true, tickets: tickets });
 });
 
 // List All tickets , all Status By User
-router.get("/listmy", passport.authenticate("jwt", { session: false }), async (req, res, next) => {
+router.get("/listmy", [passport.authenticate("jwt", { session: false }), i18n], async (req, res, next) => {
   const userEmail = req.user.email;
 
   tickets = await Ticket.getAllTicket(userEmail, "");
-  Log(req, "Info: User Gets All Own Tickets", req.user.email);
+  Log(req, "User Gets All Own Tickets", req.user.email);
   return res.json({ success: true, tickets: tickets });
 });
 
 // List Open tickets By User
-router.get("/listmyopen", passport.authenticate("jwt", { session: false }), async (req, res, next) => {
+router.get("/listmyopen", [passport.authenticate("jwt", { session: false }), i18n], async (req, res, next) => {
   const userEmail = req.user.email;
 
   tickets = await Ticket.getAllTicket(userEmail, "Open");
-  Log(req, "Info: User Gets Own Open Tickets", req.user.email);
+  Log(req, "User Gets Own Open Tickets", req.user.email);
   return res.json({ success: true, tickets: tickets });
 });
 

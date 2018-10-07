@@ -25,7 +25,7 @@ module.exports.sendMail = async function(emailTo, template, locals) {
     message: { to: emailTo },
     locals: locals
   });
-  Log(null, "Info: Email sent to " + emailTo, "SYSTEM");
+  Log(null, "Email sent to " + emailTo, "SYSTEM");
 
   return info;
 };
