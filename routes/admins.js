@@ -426,6 +426,13 @@ router.get("/list-pending-transfer", [passport.authenticate("jwt", { session: fa
   res.json({ success: true, transferRequests: transferRequests });
 });
 
+// list all TransferRequest approved by admin
+router.get("/list-ready-transfer", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+  transferRequests = await TransferRequest.getAllTransferRequests("Approved");
+  Log(req, "Approved TransferRequests list returned", req.user.email);
+  res.json({ success: true, transferRequests: transferRequests });
+});
+
 // approve burn by admin
 router.post("/approve-transfer", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
   const transferRequestNumber = Number(req.body.transferRequestNumber);

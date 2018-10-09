@@ -283,7 +283,7 @@ router.post("/burn-cancel", [passport.authenticate("jwt", { session: false }), i
 router.get("/list-burn", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
   const accountId = req.user._id;
 
-  burnRequests = await BurnRequests.getUserBurnRequests(accountId);
+  burnRequests = await BurnRequest.getUserBurnRequests(accountId);
   Log(req, "BurnRequests list returned", req.user.email);
   res.json({ success: true, burnRequest: burnRequests });
 });
@@ -346,7 +346,7 @@ router.post("/transfer-cancel", [passport.authenticate("jwt", { session: false }
 router.get("/list-transfer", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
   const accountId = req.user._id;
 
-  transferRequests = await TransferRequests.getUserTransferRequests(accountId);
+  transferRequests = await TransferRequest.getUserTransferRequests(accountId);
   Log(req, "TransferRequests list returned", req.user.email);
   res.json({ success: true, transferRequest: transferRequests });
 });

@@ -13,6 +13,8 @@ const TransferRequestSchema = mongoose.Schema({
   adminEmail: { type: String },
   adminComment: { type: String },
   adminSubmitDate: { type: Date },
+  //Transfered Date to Blockchain
+  transferedDate: { type: Date },
   status: {
     type: String,
     enum: ["Pending", "Approved", "Rejected", "Canceled"],
