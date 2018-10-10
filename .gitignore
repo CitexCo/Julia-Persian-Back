@@ -5,11 +5,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Logs
+# Configs
 **/config/setting.js
 **/config/email.js
 **/config/admin.js
 **/config/conf.txt
+**/config/production.json
 
 #Uploads
 uploads/

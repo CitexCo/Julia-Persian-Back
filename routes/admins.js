@@ -4,6 +4,7 @@ const passport = require("passport");
 const multer = require("multer");
 const path = require("path");
 const randToken = require("rand-token");
+const conf = require("config");
 
 const User = require("../models/user");
 const Exchanger = require("../models/exchanger");
@@ -428,9 +429,31 @@ router.get("/list-pending-transfer", [passport.authenticate("jwt", { session: fa
 
 // list all TransferRequest approved by admin
 router.get("/list-ready-transfer", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
-  transferRequests = await TransferRequest.getAllTransferRequests("Approved");
-  Log(req, "Approved TransferRequests list returned", req.user.email);
+  transferRequests = await TransferRequest.getAllReadyTransferRequests();
+  Log(req, "Ready TransferRequests list returned", req.user.email);
   res.json({ success: true, transferRequests: transferRequests });
+});
+
+// Transfer to blockchain by admin
+router.post("/transfer-blockchain", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+  const transferRequestNumber = Number(req.body.transferRequestNumber);
+  const transactionHash = req.body.transactionHash;
+  transferRequest = await TransferRequest.getTransferRequestByNumber(transferRequestNumber);
+  if (transferRequest.transferedToBlockchain) {
+    throw new Error("TranferRequest sent to blockchain before");
+  }
+  if (transferRequest.lastTransferedDate) {
+    exp = await DateUtils.addminutes(new Date(), conf.get("retransferBlockchainMinutes")); // 15 minutes
+    if (exp > new Date()) {
+      throw new Error("You must wait 15 minutes until send again");
+    }
+  }
+  transferRequest.lastTransferedDate = new Date();
+  transferRequest.transactionHash = transactionHash;
+  transferRequest.save();
+  Log(req, "TransferRequest number (" + transferRequest.transferRequestNumber + ") sent to blockchain", req.user.email);
+
+  res.json({ success: true, msg: __("TransferRequest number %i sent to blockchain", transferRequest.transferRequestNumber) });
 });
 
 // approve burn by admin

@@ -169,6 +169,7 @@ router.post("/create-receipt", [passport.authenticate("jwt", { session: false })
     user: user._id,
     userEmail: user.email,
     verificationCode: randToken.generate(8).toUpperCase(),
+    //TODO
     codeExpiration: await DateUtils.addDays(new Date(), 3),
     status: "Pending"
   });

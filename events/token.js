@@ -3,6 +3,7 @@ const winston = require("winston");
 const config = require("config");
 const Token = require("../models/token");
 const CitexToken = require("../contract/token.js");
+const TransferRequest = require("../models/transferRequest");
 
 async function getTimestamp(blockNumber) {
   const apiKey = config.get("etherscanAPIKey");
@@ -15,6 +16,13 @@ async function getTimestamp(blockNumber) {
 
   const block = await rp(options);
   return block.result.timeStamp;
+}
+async function chackEventInTransfers(event) {
+  transferRequest = await TransferRequest.getTransferRequestBytransactionHash(event.transactionHash);
+  if (transferRequest) {
+    transferRequest.transferedToBlockchain = true;
+    await transferRequest.save();
+  }
 }
 
 async function insertEvent(event) {
@@ -55,6 +63,7 @@ module.exports.subscribeEvents = function() {
             winston.debug(event.transactionHash);
 
             await insertEvent(event);
+            await chackEventInTransfers(event);
           }
         }
       }
@@ -64,6 +73,7 @@ module.exports.subscribeEvents = function() {
       winston.debug(event.transactionHash);
 
       await insertEvent(event);
+      await chackEventInTransfers(event);
     });
   });
 };
@@ -77,6 +87,7 @@ module.exports.syncEvents = function() {
           if (!token) {
             winston.debug(event.transactionHash);
             await insertEvent(event);
+            await chackEventInTransfers(event);
           }
         }
       }

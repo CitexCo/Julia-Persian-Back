@@ -1,3 +1,5 @@
 {
-    "etherscanAPIKey": "6VZFHXY459KV5GR3B2FJ233J4HCV42NW4H"
+  "etherscanAPIKey": "6VZFHXY459KV5GR3B2FJ233J4HCV42NW4H",
+  "port": "1000",
+  "retransferBlockchainMinutes": 15
 }

@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 var Schema = mongoose.Schema;
+autoIncrement = require("mongoose-auto-increment");
 
 // BurnRequest Schema
 const BurnRequestSchema = mongoose.Schema({

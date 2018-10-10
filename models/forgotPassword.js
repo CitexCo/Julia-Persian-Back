@@ -14,6 +14,7 @@ const ForgottenPasswordToken = (module.exports = mongoose.model("ForgottenPasswo
 module.exports.forgotPassword = async function(forgotPasswordToken) {
   var token = randToken.generate(16);
   forgotPasswordToken.token = token;
+  //TODO
   forgotPasswordToken.expiration = await DateUtils.addminutes(new Date(), 120); // 2 Hours
   return await forgotPasswordToken.save();
 };

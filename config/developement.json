@@ -1,3 +1,5 @@
 {
-    "etherscanAPIKey": ""
+  "etherscanAPIKey": "",
+  "port": "3000",
+  "retransferBlockchainMinutes": 15
 }

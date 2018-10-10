@@ -1,3 +1,4 @@
 {
-    "etherscanAPIKey": "cix_etherscanAPIKey"
+  "etherscanAPIKey": "cix_etherscanAPIKey",
+  "port": "PORT"
 }
