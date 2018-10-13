@@ -208,6 +208,26 @@ router.post(
   }
 );
 
+// Cancel Sale Receipt by user
+router.post("/cancel-receipt", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+  const receiptNumber = Number(req.body.receiptNumber);
+  receipt = await Receipt.getReceiptByNumber(receiptNumber);
+  if (receipt.codeExpiration < new Date() && !receipt.exchangerSubmitDate && !receipt.userSubmitDate) {
+    receipt.status = "Expired";
+    await receipt.save();
+    throw new Error("Reciept Expired");
+  }
+
+  if (receipt.userEmail != email) {
+    throw new Error("You can not cancel others' receipt");
+  }
+
+  receipt.status = "Canceled";
+  receipt = await receipt.save();
+  Log(req, "Receipt number (" + receipt.receiptNumber + ") canceled", req.user.email);
+  res.json({ success: true, msg: __("Receipt number %i canceled successfuly", receipt.receiptNumber) });
+});
+
 // list all Receipt submited for user
 router.get("/list-receipt", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
   const email = req.user.email;

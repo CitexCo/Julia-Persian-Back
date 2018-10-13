@@ -15,7 +15,9 @@
   "KYC not verified, please update your KYC and wait to admin verify them": "اطلاعات هویتی شما تایید نشده است، لطقا منتظر باشید تا مدیر سیستم آنها را تایید نماید",
   "Contract Signed successfuly": "قرارداد با موفقیت امضا شد",
   "You can not view others' receipt": "شما نمی‌توانید رسیدهای خرید توکن دیگران را مشاهده نمایید",
+  "You can not cancel others' receipt": "شما نمی‌توانید رسیدهای خرید توکن دیگران را لغو نمایید",
   "Receipt number %i updated successfuly": "اطلاعات رسید خرید توکن شماره %i با موفقیت به روزرسانی شد",
+  "Receipt number %i modified successfuly": "اطلاعات رسید خرید توکن شماره %i با موفقیت به تغییر کرد",
   "BurnRequest number %i Submited": "درخواست فروش توکن شماره %i ثبت شد",
   "BurnRequest number %i Canceled": "درخواست فروش توکن شماره %i لغو شد",
   "You can not cancel others' burnRequest": "شما نمی‌توانید درخواست فروش توکن دیگران را لغو کنید",
@@ -36,6 +38,7 @@
   "Receipt number %i approved successfuly": "اطلاعات رسید خرید توکن شماره %i با موفقیت تایید شد",
   "Admin can reject pending receipts only": "مدیر سیستم تنها می‌تواند رسیدهای خرید توکن در انتظار تایید را رد نماید",
   "Receipt number %i rejected successfuly": "اطلاعات رسید خرید توکن شماره %i با موفقیت تایید شد",
+  "Receipt number %i canceled successfuly": "رسید خرید توکن شماره %i با موفقیت لغو شد",
   "BurnRequest number %i approved": "درخواست فروش توکن شماره %i تایید شد",
   "Admin can approve pending burnRequests only": "مدیر سیستم تنها می‌تواند درخواست‌های فروش توکن در انتظار تایید را تایید نماید",
   "Requested amount greater than user's balance": "مقدار توکن وارد شده از اعتبار کاربر در سیستم بزرگتر است",
@@ -67,5 +70,6 @@
   "Ticket not found": "تیکت پشتیبانی مورد نظر یافت نشد",
   "TranferRequest sent to blockchain before": "درخواست انتقال توکن قبلا به بلاک چین ارسال شده است",
   "You must wait 15 minutes until send again": "شما برای ارسال مجدد درخواست انتقال باید ۱۵ دقیقه صبر کنید",
-  "TransferRequest number %i sent to blockchain": "درخواست انتقال توکن شماره %i به بلاک چین ارسال شد"
+  "TransferRequest number %i sent to blockchain": "درخواست انتقال توکن شماره %i به بلاک چین ارسال شد",
+  "You can modify incomplete receipts only": "شما تنها می‌توانید رسیدهای کامل نشده را تغییر بدهید"
 }

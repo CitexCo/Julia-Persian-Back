@@ -31,6 +31,7 @@ router.post(
     const email = req.user.email;
     const comment = req.body.comment;
     const receiptNumber = Number(req.body.receiptNumber);
+    const amount = req.body.amount;
     receipt = await Receipt.getReceiptByNumber(receiptNumber);
     if (receipt.codeExpiration < new Date() && !receipt.exchangerSubmitDate && !receipt.userSubmitDate) {
       receipt.status = "Expired";
@@ -45,6 +46,7 @@ router.post(
     }
     receipt.exchangerComment = comment;
     receipt.exchangerSubmitDate = new Date();
+    receipt.exchangerAmount = amount;
     receipt = await receipt.save();
     Log(req, "Receipt number (" + receipt.receiptNumber + ") Created", req.user.email);
     res.json({ success: true, msg: __("Your documnets for receipt number %i uploaded successfuly", receipt.receiptNumber) });

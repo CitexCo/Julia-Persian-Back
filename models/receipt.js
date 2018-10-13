@@ -12,6 +12,7 @@ const ReceiptSchema = mongoose.Schema({
   exchangerComment: { type: String },
   exchangerReceipt: { type: String },
   exchangerSubmitDate: { type: Date },
+  exchangerAmount: { type: Number },
   user: { type: Schema.Types.ObjectId, ref: "User", required: true },
   userEmail: { type: String, required: true },
   userComment: { type: String },
@@ -23,7 +24,7 @@ const ReceiptSchema = mongoose.Schema({
   adminSubmitDate: { type: Date },
   status: {
     type: String,
-    enum: ["Pending", "Approved", "Rejected", "Expired"],
+    enum: ["Pending", "Approved", "Rejected", "Expired", "Canceled"],
     default: "Pending"
   }
 });

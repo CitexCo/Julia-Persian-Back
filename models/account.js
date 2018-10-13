@@ -51,17 +51,6 @@ module.exports.getAccountByEmail = async function(email) {
   return account;
 };
 
-// // Get user by userNumber
-// module.exports.getUserByNumber = async function(userNumber) {
-//   const query = { UserNumber: userNumber };
-
-//   user = await User.findOne(query);
-//   if (!user) {
-//     throw new Error("User not found");
-//   }
-//   return user;
-// };
-
 module.exports.addAccount = async function(newAccount, type) {
   salt = await bcrypt.genSalt(10);
   hash = await bcrypt.hash(newAccount.password, salt);

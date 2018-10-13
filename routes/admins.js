@@ -37,8 +37,6 @@ router.post(
   "/register-exchanger",
   [passport.authenticate("jwt", { session: false }), i18n, autorize, upload.single("image")],
   async (req, res, next) => {
-    // roles = [req.body.roles];
-    console.log(req.body.roles);
     const enabled = req.body.enabled;
     var newExchanger = new Exchanger({
       email: req.body.email,
@@ -274,6 +272,22 @@ router.get("/list-pending-receipt", [passport.authenticate("jwt", { session: fal
   res.json({ success: true, receipts: receipts });
 });
 
+// modify receipt amount by admin
+router.post("/modify-receipt", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+  const receiptNumber = Number(req.body.receiptNumber);
+  const amount = req.body.amount;
+
+  receipt = await Receipt.getReceiptByNumber(receiptNumber);
+  if (receipt.status != "Pending" || receipt.userSubmitDate || receipt.exchangerSubmitDate) {
+    throw new Error("You can modify incomplete receipts only");
+  }
+  receipt.amount = amount;
+  await receipt.save();
+
+  Log(req, "Receipt number " + receipt.receiptNumber + " modified", req.user.email);
+  res.json({ success: true, msg: __("Receipt number %i modified successfuly", receipt.receiptNumber) });
+});
+
 // approve receipt by admin
 router.post("/approve-receipt", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
   const receiptNumber = Number(req.body.receiptNumber);
@@ -296,7 +310,7 @@ router.post("/approve-receipt", [passport.authenticate("jwt", { session: false }
   await user.save();
   var locals = { amount: receipt.amount, receiptRequestNumber: receipt.receiptNumber, approved: true };
   await Email.sendMail(req.user.email, "responseReceipt", locals);
-  Log(req, "Receipt number (" + receipt.receiptNumber + ") Approved", req.user.email);
+  Log(req, "Receipt number " + receipt.receiptNumber + " approved", req.user.email);
   res.json({ success: true, msg: __("Receipt number %i approved successfuly", receipt.receiptNumber) });
 });
 
@@ -317,7 +331,7 @@ router.post("/reject-receipt", [passport.authenticate("jwt", { session: false })
   receipt = await receipt.save();
   var locals = { amount: receipt.amount, receiptRequestNumber: receipt.receiptNumber, approved: false };
   await Email.sendMail(req.user.email, "responseReceipt", locals);
-  Log(req, "Receipt number (" + receipt.receiptNumber + ") rejected", req.user.email);
+  Log(req, "Receipt number " + receipt.receiptNumber + " rejected", req.user.email);
   res.json({ success: true, msg: __("Receipt number %i rejected successfuly", receipt.receiptNumber) });
 });
 

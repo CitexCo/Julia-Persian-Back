@@ -77,7 +77,6 @@ module.exports.getAllTransferRequests = async function(reqStatus) {
 
 module.exports.getAllReadyTransferRequests = async function() {
   var expDate = await DateUtils.subMinutes(new Date(), conf.get("retransferBlockchainMinutes"));
-  console.log(expDate);
 
   var query = {
     status: "Approved",

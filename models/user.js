@@ -7,6 +7,7 @@ const Account = require("./account");
 // User Schema
 const UserSchema = mongoose.Schema({
   email: { type: String, required: true, unique: true, lowercase: true },
+  referalCode: { type: String, required: true, unique: true, uppercase: true },
   KYCCode: { type: String },
   KYCVerified: { type: Boolean, default: false },
   KYCUpdated: { type: Boolean, default: false },
@@ -70,17 +71,6 @@ module.exports.getUserByEmail = async function(email) {
   return user;
 };
 
-// Get user by userNumber
-module.exports.getUserByNumber = async function(userNumber) {
-  const query = { UserNumber: userNumber };
-
-  user = await User.findOne(query);
-  if (!user) {
-    throw new Error("User not found");
-  }
-  return user;
-};
-
 module.exports.addUser = async function(email, password, referal) {
   await User.checkReferal(referal);
   var newAccount = new Account({
@@ -95,9 +85,15 @@ module.exports.addUser = async function(email, password, referal) {
   hash = await bcrypt.hash(newAccount.password, salt);
   newAccount.password = hash;
   var token = randToken.generate(16);
+  var referalCode = randToken.generate(8);
+  user = await User.findOne({ referalCode: referalCode });
+  while (user) {
+    referalCode = randToken.generate(8);
+    user = await User.findOne({ referalCode: referalCode });
+  }
   newAccount.emailVerificationToken = token;
   try {
-    var newUser = new User({ email: email, referal: referal });
+    var newUser = new User({ email: email, referal: referal.toUpperCase(), referalCode: referalCode });
     await newUser.save();
     return await newAccount.save();
   } catch (ex) {
@@ -122,10 +118,13 @@ module.exports.changePassword = async function(user, newPassword) {
 
 module.exports.checkReferal = async function(referal) {
   if (referal) {
-    try {
-      await User.getUserByStrId(referal);
+    query = { referalCode: referal.toUpperCase() };
+
+    user = await User.findOne(query);
+
+    if (user) {
       return true;
-    } catch (ex) {
+    } else {
       throw new Error("Invalid Referal");
     }
   } else {
@@ -145,8 +144,8 @@ module.exports.hasRole = async function(roles, requestedRole) {
   return await isFound;
 };
 
-module.exports.getUserReferals = async function(id) {
-  const query = { referal: id };
+module.exports.getUserReferals = async function(referal) {
+  const query = { referalCode: referal };
 
   return await User.find(query, { email: 1, _id: 0 });
 };
@@ -168,39 +167,11 @@ module.exports.getUsersListRoles = async function() {
 
 module.exports.getUsersListKYC = async function() {
   const query = { KYCUpdated: true, KYCVerified: false };
-  return await User.find(query, {
-    password: 0
-  });
+  return await User.find(query, { password: 0 });
 };
 
 module.exports.getUserKYC = async function(email) {
   const query = { email: email };
 
   return await User.findOne(query, { password: 0 });
-};
-
-module.exports.getUserKYCByNumber = async function(userNumber) {
-  const query = { UserNumber: userNumber };
-
-  user = await User.findOne(query, {
-    email: 1,
-    firstName: 1,
-    lastName: 1,
-    birthDate: 1,
-    address: 1,
-    walletAddress: 1,
-    telephone: 1,
-    passportImageAddress: 1,
-    registeredDate: 1,
-    KYCVerified: 1,
-    _id: 0
-  });
-
-  if (!user) {
-    throw new Error("User not found");
-  }
-  if (!user.KYCVerified) {
-    throw new Error("User KYC not verified");
-  }
-  return user;
 };
