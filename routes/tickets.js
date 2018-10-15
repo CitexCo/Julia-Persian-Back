@@ -9,7 +9,7 @@ const Log = require("../middlewares/log");
 const Ticket = require("../models/ticket");
 const Email = require("../middlewares/email");
 const i18n = require("../middlewares/i18n");
-const autorize = require("../middlewares/authorize");
+const authorize = require("../middlewares/authorize");
 
 var storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -93,7 +93,7 @@ router.post("/reply", [passport.authenticate("jwt", { session: false }), i18n], 
 });
 
 // Answer ticket by admin
-router.post("/answer", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+router.post("/answer", [passport.authenticate("jwt", { session: false }), i18n, authorize], async (req, res, next) => {
   const userEmail = req.user.email;
   const ticketNumber = req.body.ticketNumber;
   const answerDesc = req.body.answerDesc;
@@ -119,14 +119,14 @@ router.post("/answer", [passport.authenticate("jwt", { session: false }), i18n, 
 });
 
 // List All tickets , all Status By Admin
-router.get("/listall", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+router.get("/listall", [passport.authenticate("jwt", { session: false }), i18n, authorize], async (req, res, next) => {
   tickets = await Ticket.getAllTicket("", "");
   Log(req, "Admin Gets All Tickets", req.user.email);
   return res.json({ success: true, tickets: tickets });
 });
 
 // List All Open tickets By Admin
-router.get("/listallopen", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+router.get("/listallopen", [passport.authenticate("jwt", { session: false }), i18n, authorize], async (req, res, next) => {
   tickets = await Ticket.getAllTicket("", "Open");
   Log(req, "Admin Gets All Tickets", req.user.email);
   return res.json({ success: true, tickets: tickets });

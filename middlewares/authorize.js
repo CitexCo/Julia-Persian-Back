@@ -26,41 +26,50 @@ module.exports = async function(req, res, next) {
   } else {
     const adminEmail = req.user.email;
     admin = await Admin.getAdminByEmail(adminEmail);
-    switch (req.url) {
-      case "/get-kyc":
-      case "/listkyc":
-      case "/verifykyc":
+    console.log(req.url);
+    console.log(req.originalUrl);
+
+    switch (req.originalUrl) {
+      case "/admins/get-kyc":
+      case "/admins/listkyc":
+      case "/admins/verifykyc":
         role = ["verifyKYC"];
         break;
-      case "/listroles":
-      case "/changeroles":
+      case "/admins/all-roles":
+      case "/admins/listroles":
+      case "/admins/changeroles":
         role = ["changeRoles"];
         break;
-      case "/enable":
-      case "/disable":
-      case "/admins":
-      case "/exchangers":
-      case "/users":
+      case "/admins/register-admin":
+      case "/admins/register-exchanger":
+      case "/admins/enable":
+      case "/admins/disable":
+      case "/admins/admins":
+      case "/admins/exchangers":
+      case "/admins/users":
         role = ["userManager"];
         break;
-      case "/list-receipt":
-      case "/list-approved-receipt":
-      case "/list-rejected-receipt":
-      case "/list-pending-receipt":
-      case "/approve-receipt":
-      case "/reject-receipt":
-      case "/list-burn":
-      case "/list-approved-burn":
-      case "/list-rejected-burn":
-      case "/list-pending-burn":
-      case "/approve-burn":
-      case "/reject-burn":
-      case "/list-transfer":
-      case "/list-approved-transfer":
-      case "/list-rejected-transfer":
-      case "/list-pending-transfer":
-      case "/approve-transfer":
-      case "/reject-transfer":
+      case "/admins/list-receipt":
+      case "/admins/list-approved-receipt":
+      case "/admins/list-rejected-receipt":
+      case "/admins/list-pending-receipt":
+      case "/admins/modify-receipt":
+      case "/admins/approve-receipt":
+      case "/admins/reject-receipt":
+      case "/admins/list-burn":
+      case "/admins/list-approved-burn":
+      case "/admins/list-rejected-burn":
+      case "/admins/list-pending-burn":
+      case "/admins/approve-burn":
+      case "/admins/reject-burn":
+      case "/admins/list-transfer":
+      case "/admins/list-approved-transfer":
+      case "/admins/list-rejected-transfer":
+      case "/admins/list-pending-transfer":
+      case "/admins/list-ready-transfer":
+      case "/admins/transfer-blockchain":
+      case "/admins/approve-transfer":
+      case "/admins/reject-transfer":
         role = ["financeManager"];
         break;
       case "/tickets/answer":
@@ -68,7 +77,7 @@ module.exports = async function(req, res, next) {
         role = ["answerTicket"];
         break;
       case "/rpc/token-price":
-        role = ["RPCManager"];
+        role = ["financeManager"];
         break;
       default:
         role = null;

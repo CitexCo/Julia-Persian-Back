@@ -22,7 +22,7 @@ const UserSchema = mongoose.Schema({
   passportImageAddress: { type: String },
   imageAddress: { type: String },
   registeredDate: { type: Date, default: Date.now() },
-  referal: { type: String },
+  referal: { type: String, uppercase: true },
   contractType: { type: String, enum: ["Risky", "Normal"] },
   balance: { type: Number, default: 0 }
 });
@@ -93,7 +93,7 @@ module.exports.addUser = async function(email, password, referal) {
   }
   newAccount.emailVerificationToken = token;
   try {
-    var newUser = new User({ email: email, referal: referal.toUpperCase(), referalCode: referalCode });
+    var newUser = new User({ email: email, referal: referal, referalCode: referalCode });
     await newUser.save();
     return await newAccount.save();
   } catch (ex) {

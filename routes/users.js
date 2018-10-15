@@ -9,7 +9,7 @@ const randToken = require("rand-token");
 
 const Log = require("../middlewares/log");
 const i18n = require("../middlewares/i18n");
-const autorize = require("../middlewares/authorize");
+const authorize = require("../middlewares/authorize");
 const Email = require("../middlewares/email");
 const DateUtils = require("../middlewares/date-utils");
 const config = require("../config/setting");
@@ -48,7 +48,7 @@ router.post("/register", i18n, async (req, res, next) => {
 });
 
 // Get KYC Code for display in passportImage by user
-router.get("/kyc-code", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+router.get("/kyc-code", [passport.authenticate("jwt", { session: false }), i18n, authorize], async (req, res, next) => {
   const email = req.user.email;
   code = randToken.generate(6, "0123456789");
   user = await User.getUserByEmail(email);
@@ -59,21 +59,21 @@ router.get("/kyc-code", [passport.authenticate("jwt", { session: false }), i18n,
 });
 
 // user profile information
-router.get("/profile", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+router.get("/profile", [passport.authenticate("jwt", { session: false }), i18n, authorize], async (req, res, next) => {
   user = await User.getUserByEmail(req.user.email);
   Log(req, "User profile returned", req.user.email);
   res.json({ success: true, user: user });
 });
 
 // list All exchangers
-router.get("/exchangers", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+router.get("/exchangers", [passport.authenticate("jwt", { session: false }), i18n, authorize], async (req, res, next) => {
   exchangers = await Exchanger.getEnabledExchangersList();
   Log(req, "All exchangers list returned", req.user.email);
   res.json({ success: true, exchangers: exchangers });
 });
 
 // get exchanger informations
-router.post("/exchanger", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+router.post("/exchanger", [passport.authenticate("jwt", { session: false }), i18n, authorize], async (req, res, next) => {
   exchangerEmail = req.body.exchangerEmail;
   exchanger = await Exchanger.getExchangerByEmail(exchangerEmail);
   Log(req, "Exchanger profile returned", req.user.email);
@@ -81,7 +81,7 @@ router.post("/exchanger", [passport.authenticate("jwt", { session: false }), i18
 });
 
 // Update KYC
-router.post("/updatekyc", [passport.authenticate("jwt", { session: false }), i18n, autorize, upload.any()], async (req, res, next) => {
+router.post("/updatekyc", [passport.authenticate("jwt", { session: false }), i18n, authorize, upload.any()], async (req, res, next) => {
   const email = req.user.email;
 
   user = await User.getUserByEmail(email);
@@ -127,7 +127,7 @@ router.post("/updatekyc", [passport.authenticate("jwt", { session: false }), i18
 });
 
 // Sign Contract
-router.post("/sign-contract", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+router.post("/sign-contract", [passport.authenticate("jwt", { session: false }), i18n, authorize], async (req, res, next) => {
   const email = req.user.email;
   const contractType = req.body.contractType;
   user = await User.getUserByEmail(email);
@@ -144,7 +144,7 @@ router.post("/sign-contract", [passport.authenticate("jwt", { session: false }),
 });
 
 // Get Referals
-router.get("/getreferal", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+router.get("/getreferal", [passport.authenticate("jwt", { session: false }), i18n, authorize], async (req, res, next) => {
   const email = req.user.email;
   user = await User.getUserByEmail(email);
 
@@ -154,7 +154,7 @@ router.get("/getreferal", [passport.authenticate("jwt", { session: false }), i18
 });
 
 // Create Receipt and get code
-router.post("/create-receipt", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+router.post("/create-receipt", [passport.authenticate("jwt", { session: false }), i18n, authorize], async (req, res, next) => {
   const email = req.user.email;
   const amount = req.body.amount;
   const exchangerEmail = req.body.exchangerEmail;
@@ -182,7 +182,7 @@ router.post("/create-receipt", [passport.authenticate("jwt", { session: false })
 // Upload Sale Receipt by user
 router.post(
   "/complete-receipt",
-  [passport.authenticate("jwt", { session: false }), i18n, autorize, upload.single("receipt")],
+  [passport.authenticate("jwt", { session: false }), i18n, authorize, upload.single("receipt")],
   async (req, res, next) => {
     const email = req.user.email;
     const comment = req.body.comment;
@@ -209,7 +209,7 @@ router.post(
 );
 
 // Cancel Sale Receipt by user
-router.post("/cancel-receipt", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+router.post("/cancel-receipt", [passport.authenticate("jwt", { session: false }), i18n, authorize], async (req, res, next) => {
   const receiptNumber = Number(req.body.receiptNumber);
   receipt = await Receipt.getReceiptByNumber(receiptNumber);
   if (receipt.codeExpiration < new Date() && !receipt.exchangerSubmitDate && !receipt.userSubmitDate) {
@@ -229,7 +229,7 @@ router.post("/cancel-receipt", [passport.authenticate("jwt", { session: false })
 });
 
 // list all Receipt submited for user
-router.get("/list-receipt", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+router.get("/list-receipt", [passport.authenticate("jwt", { session: false }), i18n, authorize], async (req, res, next) => {
   const email = req.user.email;
 
   receipts = await Receipt.getUserReceipts(email);
@@ -238,7 +238,7 @@ router.get("/list-receipt", [passport.authenticate("jwt", { session: false }), i
 });
 
 // list all Pending Receipt submited for user
-router.get("/list-pending-receipt", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+router.get("/list-pending-receipt", [passport.authenticate("jwt", { session: false }), i18n, authorize], async (req, res, next) => {
   const email = req.user.email;
 
   receipts = await Receipt.getUserReceipts(email, "Pending");
@@ -247,7 +247,7 @@ router.get("/list-pending-receipt", [passport.authenticate("jwt", { session: fal
 });
 
 // return user balance
-router.get("/balance", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+router.get("/balance", [passport.authenticate("jwt", { session: false }), i18n, authorize], async (req, res, next) => {
   const email = req.user.email;
 
   user = await User.getUserByEmail(email);
@@ -256,7 +256,7 @@ router.get("/balance", [passport.authenticate("jwt", { session: false }), i18n, 
 });
 
 // request to burn some token and give money
-router.post("/burn", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+router.post("/burn", [passport.authenticate("jwt", { session: false }), i18n, authorize], async (req, res, next) => {
   const amount = req.body.amount;
   const password = req.body.password;
   account = await Account.getAccountByEmail(req.user.email);
@@ -287,7 +287,7 @@ router.post("/burn", [passport.authenticate("jwt", { session: false }), i18n, au
 });
 
 // request to burn some token and give mony
-router.post("/burn-cancel", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+router.post("/burn-cancel", [passport.authenticate("jwt", { session: false }), i18n, authorize], async (req, res, next) => {
   const accountId = req.user._id;
   const burnRequestNumber = Number(req.body.burnRequestNumber);
   burnRequest = await BurnRequest.getBurnRequestByNumber(burnRequestNumber);
@@ -301,7 +301,7 @@ router.post("/burn-cancel", [passport.authenticate("jwt", { session: false }), i
 });
 
 // list all BurnRequests submited for user
-router.get("/list-burn", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+router.get("/list-burn", [passport.authenticate("jwt", { session: false }), i18n, authorize], async (req, res, next) => {
   const accountId = req.user._id;
 
   burnRequests = await BurnRequest.getUserBurnRequests(accountId);
@@ -310,7 +310,7 @@ router.get("/list-burn", [passport.authenticate("jwt", { session: false }), i18n
 });
 
 // list all Pending BurnRequests submited for user
-router.get("/list-pending-burn", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+router.get("/list-pending-burn", [passport.authenticate("jwt", { session: false }), i18n, authorize], async (req, res, next) => {
   const accountId = req.user._id;
 
   burnRequests = await BurnRequest.getUserBurnRequests(accountId, "Pending");
@@ -319,7 +319,7 @@ router.get("/list-pending-burn", [passport.authenticate("jwt", { session: false 
 });
 
 // request to transfer some token and give money
-router.post("/transfer", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+router.post("/transfer", [passport.authenticate("jwt", { session: false }), i18n, authorize], async (req, res, next) => {
   const amount = req.body.amount;
   const password = req.body.password;
   account = await Account.getAccountByEmail(req.user.email);
@@ -350,7 +350,7 @@ router.post("/transfer", [passport.authenticate("jwt", { session: false }), i18n
 });
 
 // request to transfer some token and give mony
-router.post("/transfer-cancel", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+router.post("/transfer-cancel", [passport.authenticate("jwt", { session: false }), i18n, authorize], async (req, res, next) => {
   const accountId = req.user._id;
   const transferRequestNumber = Number(req.body.transferRequestNumber);
   transferRequest = await TransferRequest.getTransferRequestByNumber(transferRequestNumber);
@@ -364,7 +364,7 @@ router.post("/transfer-cancel", [passport.authenticate("jwt", { session: false }
 });
 
 // list all TransferRequests submited for user
-router.get("/list-transfer", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+router.get("/list-transfer", [passport.authenticate("jwt", { session: false }), i18n, authorize], async (req, res, next) => {
   const accountId = req.user._id;
 
   transferRequests = await TransferRequest.getUserTransferRequests(accountId);
@@ -373,7 +373,7 @@ router.get("/list-transfer", [passport.authenticate("jwt", { session: false }), 
 });
 
 // list all Pending TransferRequests submited for user
-router.get("/list-pending-transfer", [passport.authenticate("jwt", { session: false }), i18n, autorize], async (req, res, next) => {
+router.get("/list-pending-transfer", [passport.authenticate("jwt", { session: false }), i18n, authorize], async (req, res, next) => {
   const accountId = req.user._id;
 
   transferRequests = await TransferRequest.getUserTransferRequests(accountId, "Pending");
