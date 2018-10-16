@@ -71,5 +71,7 @@
   "TranferRequest sent to blockchain before": "درخواست انتقال توکن قبلا به بلاک چین ارسال شده است",
   "You must wait 15 minutes until send again": "شما برای ارسال مجدد درخواست انتقال باید ۱۵ دقیقه صبر کنید",
   "TransferRequest number %i sent to blockchain": "درخواست انتقال توکن شماره %i به بلاک چین ارسال شد",
-  "You can modify incomplete receipts only": "شما تنها می‌توانید رسیدهای کامل نشده را تغییر بدهید"
+  "You can modify incomplete receipts only": "شما تنها می‌توانید رسیدهای کامل نشده را تغییر بدهید",
+  "Account %s enabled successfuly": "حساب کاربری %s با موفقیت فعال شد",
+  "Account %s disabled successfuly": "حساب کاربری %s با موفقیت غیرفعال شد"
 }

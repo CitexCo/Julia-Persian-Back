@@ -26,8 +26,8 @@ module.exports = async function(req, res, next) {
   } else {
     const adminEmail = req.user.email;
     admin = await Admin.getAdminByEmail(adminEmail);
-    console.log(req.url);
-    console.log(req.originalUrl);
+    // console.log(req.url);
+    // console.log(req.originalUrl);
 
     switch (req.originalUrl) {
       case "/admins/get-kyc":

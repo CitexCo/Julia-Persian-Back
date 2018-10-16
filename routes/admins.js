@@ -7,6 +7,7 @@ const randToken = require("rand-token");
 const conf = require("config");
 
 const User = require("../models/user");
+const Account = require("../models/account");
 const Exchanger = require("../models/exchanger");
 const Admin = require("../models/admin");
 const Receipt = require("../models/receipt");
@@ -185,21 +186,21 @@ router.post("/verifykyc", [passport.authenticate("jwt", { session: false }), i18
 // Disable User
 router.post("/disable", [passport.authenticate("jwt", { session: false }), i18n, authorize], async (req, res, next) => {
   const email = req.body.email;
-  user = await User.getUserByEmail(email);
-  user.enabled = false;
-  await user.save();
-  Log(req, "User(" + email + ") disabled successfuly", req.user.email);
-  return res.json({ success: true, msg: "User disabled successfuly" });
+  account = await Account.getAccountByEmail(email);
+  account.enabled = false;
+  await account.save();
+  Log(req, email + " disabled successfuly", req.user.email);
+  return res.json({ success: true, msg: __("Account %s disabled successfuly", email) });
 });
 
 // Enable User
 router.post("/enable", [passport.authenticate("jwt", { session: false }), i18n, authorize], async (req, res, next) => {
   const email = req.body.email;
-  user = await User.getUserByEmail(email);
-  user.enabled = true;
-  await user.save();
-  Log(req, "User(" + email + ") enabled successfuly", req.user.email);
-  return res.json({ success: true, msg: "User enabled successfuly" });
+  account = await Account.getAccountByEmail(email);
+  account.enabled = true;
+  await account.save();
+  Log(req, email + " enabled successfuly", req.user.email);
+  return res.json({ success: true, msg: __("Account %s enabled successfuly", email) });
 });
 
 // user, verifyKYC, changeRoles, answerTicket, userManager, RPCManager
