@@ -2,8 +2,11 @@ const Admin = require("../models/admin");
 const winston = require("winston");
 
 module.exports = async function(req, res, next) {
+  type = "";
   switch (req.baseUrl) {
     case "/admins":
+    case "/tickets":
+    case "/rpc":
       type = "Admin";
       break;
     case "/users":

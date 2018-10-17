@@ -1,8 +1,10 @@
 const mongoose = require("mongoose");
-const config = require("../config/setting");
 autoIncrement = require("mongoose-auto-increment");
+const conf = require("config");
+const config = require("../config/setting");
 const Email = require("../middlewares/email");
 const Log = require("../middlewares/log");
+const DateUtils = require("../middlewares/date-utils");
 
 // Ticket Schema
 const TicketSchema = mongoose.Schema({
@@ -56,8 +58,7 @@ module.exports.getTicketByNumber = async function(ticketNumber) {
 
 // Checks Old Answered Ticket And Close Them
 async function closeOldAnsweredTickets() {
-  var date = new Date() - config.AutoClodeTickets;
-  providedDate = new Date(date);
+  var providedDate = await DateUtils.subMinutes(new Date(), conf.get("AutoClodeTicketsDays"));
 
   const query = { lastreplyDate: { $lt: providedDate }, status: "Answered" };
 
@@ -69,7 +70,7 @@ async function closeOldAnsweredTickets() {
     }
     ticket.status = "Closed";
     await icket.save();
-    Log(req, "Ticket number(" + ticket.ticketNumber + ") Closed", "SYSTEM");
+    Log(req, "Ticket number " + ticket.ticketNumber + " Closed", "SYSTEM");
   });
   //Repeat Function every minute
   setTimeout(closeOldAnsweredTickets, 60000);

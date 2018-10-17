@@ -1,5 +1,6 @@
 {
   "etherscanAPIKey": "",
   "port": "3000",
-  "retransferBlockchainMinutes": 15
+  "retransferBlockchainMinutes": 15,
+  "AutoClodeTicketsDays": 7
 }

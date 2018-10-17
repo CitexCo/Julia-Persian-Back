@@ -9,3 +9,7 @@ module.exports.subMinutes = async function(date, minutes) {
 module.exports.addDays = async function(date, days) {
   return new Date(date.getTime() + days * 60000 * 60 * 24);
 };
+
+module.exports.subDays = async function(date, days) {
+  return new Date(date.getTime() - days * 60000 * 60 * 24);
+};

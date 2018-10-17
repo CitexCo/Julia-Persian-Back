@@ -170,7 +170,7 @@ router.post("/verifykyc", [passport.authenticate("jwt", { session: false }), i18
     user.enabled = true;
 
     await user.save();
-    Log(req, "User(" + user.email + ") KYC verified", req.user.email);
+    Log(req, user.email + " KYC verified", req.user.email);
     return res.json({ success: true, msg: "User KYC verified" });
   } else {
     await Email.sendMail(user.email, "KYCNotVerified", req.body);
@@ -178,7 +178,7 @@ router.post("/verifykyc", [passport.authenticate("jwt", { session: false }), i18
     user.KYCVerified = false;
     user.KYCUpdated = false;
     await user.save();
-    Log(req, "User(" + user.email + ") KYC not verified", req.user.email);
+    Log(req, user.email + " KYC not verified", req.user.email);
     return res.json({ success: true, msg: "User KYC not verified" });
   }
 });
