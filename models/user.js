@@ -145,7 +145,8 @@ module.exports.hasRole = async function(roles, requestedRole) {
 };
 
 module.exports.getUserReferals = async function(referal) {
-  const query = { referalCode: referal };
+  console.log(referal);
+  const query = { referal: referal };
 
   return await User.find(query, { email: 1, _id: 0 });
 };

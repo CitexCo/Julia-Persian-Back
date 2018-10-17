@@ -148,7 +148,7 @@ router.get("/getreferal", [passport.authenticate("jwt", { session: false }), i18
   const email = req.user.email;
   user = await User.getUserByEmail(email);
 
-  referals = await User.getUserReferals(user._id);
+  referals = await User.getUserReferals(user.referalCode);
   Log(req, "Get Refeals successfuly", req.user.email);
   return res.json({ success: true, referals: referals });
 });
