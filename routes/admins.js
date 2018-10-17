@@ -390,7 +390,7 @@ router.post("/approve-burn", [passport.authenticate("jwt", { session: false }), 
 
   await burnRequest.save();
   var locals = { amount: burnRequest.amount, burnRequestNumber: burnRequest.burnRequestNumber, approved: true };
-  await Email.sendMail(req.user.email, "responseBurnRequest", locals);
+  await Email.sendMail(burnRequest.userEmail, "responseBurnRequest", locals);
   Log(req, "BurnRequest number (" + burnRequest.burnRequestNumber + ") Approved", req.user.email);
 
   res.json({ success: true, msg: __("BurnRequest number %i approved", burnRequest.burnRequestNumber) });
@@ -412,7 +412,7 @@ router.post("/reject-burn", [passport.authenticate("jwt", { session: false }), i
   await burnRequest.save();
 
   var locals = { amount: burnRequest.amount, burnRequestNumber: burnRequest.burnRequestNumber, approved: false };
-  await Email.sendMail(req.user.email, "responseBurnRequest", locals);
+  await Email.sendMail(burnRequest.userEmail, "responseBurnRequest", locals);
   Log(req, "BurnRequest number (" + burnRequest.burnRequestNumber + ") Rejected", req.user.email);
   res.json({ success: true, msg: __("BurnRequest number %i rejected", burnRequest.burnRequestNumber) });
 });
@@ -497,7 +497,7 @@ router.post("/approve-transfer", [passport.authenticate("jwt", { session: false 
 
   await transferRequest.save();
   var locals = { amount: transferRequest.amount, transferRequestNumber: transferRequest.transferRequestNumber, approved: true };
-  await Email.sendMail(req.user.email, "responseTransferRequest", locals);
+  await Email.sendMail(transferRequest.userEmail, "responseTransferRequest", locals);
   Log(req, "TransferRequest number (" + transferRequest.transferRequestNumber + ") Approved", req.user.email);
 
   res.json({ success: true, msg: __("TransferRequest number %i approved", transferRequest.transferRequestNumber) });
@@ -519,7 +519,7 @@ router.post("/reject-transfer", [passport.authenticate("jwt", { session: false }
   await transferRequest.save();
 
   var locals = { amount: transferRequest.amount, transferRequestNumber: transferRequest.transferRequestNumber, approved: false };
-  await Email.sendMail(req.user.email, "responseTransferRequest", locals);
+  await Email.sendMail(transferRequest.userEmail, "responseTransferRequest", locals);
   Log(req, "TransferRequest number (" + transferRequest.transferRequestNumber + ") Rejected", req.user.email);
   res.json({ success: true, msg: __("TransferRequest number %i rejected", transferRequest.transferRequestNumber) });
 });
