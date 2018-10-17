@@ -26,7 +26,7 @@ router.post("/get-price", async (req, res, next) => {
   return res.json({ success: true, prices: prices });
 });
 
-router.post("/get-last-price", async (req, res, next) => {
+router.get("/get-last-price", async (req, res, next) => {
   price = await Price.getLastPrice();
   Log(req, "Get last price in " + type + "(" + price.price + ")", "");
   return res.json({ success: true, price: price });
