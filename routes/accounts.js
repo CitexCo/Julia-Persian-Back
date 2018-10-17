@@ -2,12 +2,12 @@ const express = require("express");
 const router = express.Router();
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
+const config = require("config");
 
 const Account = require("../models/account");
 const Log = require("../middlewares/log");
 const i18n = require("../middlewares/i18n");
 const Email = require("../middlewares/email");
-const config = require("../config/setting");
 const ForgottenPasswordToken = require("../models/forgotPassword");
 
 //Authenticate
@@ -25,7 +25,7 @@ router.post("/authenticate", i18n, async (req, res, next) => {
 
   isMatch = await Account.comparePassword(password, account.password);
   if (isMatch) {
-    const token = jwt.sign(account.toJSON(), config.secret, {
+    const token = jwt.sign(account.toJSON(), config.get("JWTsecret"), {
       expiresIn: 604800 // 1 week in sec
     });
     Log(req, "User authenticated successfuly", email);
@@ -64,7 +64,7 @@ router.post("/forgotpassword", i18n, async (req, res, next) => {
   });
   account = await Account.getAccountByEmail(passwordToken.email);
   passwordToken = await ForgottenPasswordToken.forgotPassword(passwordToken);
-  var locals = { server: config.serverAddr, email: account.email, passwordToken: passwordToken.token };
+  var locals = { server: config.get("serverAddr"), email: account.email, passwordToken: passwordToken.token };
   await Email.sendMail(account.email, "resetPassword", locals);
   return res.json({ success: true, msg: __("Reset Password Email sent to your mailbox") });
 });

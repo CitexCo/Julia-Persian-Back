@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 autoIncrement = require("mongoose-auto-increment");
-const conf = require("config");
-const config = require("../config/setting");
+const config = require("config");
 const Email = require("../middlewares/email");
 const Log = require("../middlewares/log");
 const DateUtils = require("../middlewares/date-utils");
@@ -58,7 +57,7 @@ module.exports.getTicketByNumber = async function(ticketNumber) {
 
 // Checks Old Answered Ticket And Close Them
 async function closeOldAnsweredTickets() {
-  var providedDate = await DateUtils.subMinutes(new Date(), conf.get("AutoClodeTicketsDays"));
+  var providedDate = await DateUtils.subMinutes(new Date(), config.get("AutoClodeTicketsDays"));
 
   const query = { lastreplyDate: { $lt: providedDate }, status: "Answered" };
 

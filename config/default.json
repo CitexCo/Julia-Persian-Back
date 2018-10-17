@@ -1,5 +1,8 @@
 {
   "etherscanAPIKey": "6VZFHXY459KV5GR3B2FJ233J4HCV42NW4H",
+  "database": "mongodb://julia:Julia123@localhost:27017/juliaFarsidb",
+  "JWTsecret": "zF7VThsHuV4Akxwo1536756453106",
+  "serverAddr": "http://localhost:3000",
   "port": "1000",
   "retransferBlockchainMinutes": 15,
   "AutoClodeTicketsDays": 7

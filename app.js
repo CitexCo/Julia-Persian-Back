@@ -17,9 +17,6 @@ process.env.NODE_CONFIG_DIR = path.join(__dirname, "./config");
 
 app.use(errors);
 
-const Admin = require("./models/admin");
-Admin.addAdministrator();
-
 app.listen(port, () => {
   console.log("Server started on " + port);
 });

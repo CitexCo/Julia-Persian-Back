@@ -27,7 +27,7 @@ module.exports = async function(app) {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  require("../config/passport")(passport);
+  require("../middlewares/passport")(passport);
 
   app.use("/users", users);
   app.use("/accounts", accounts);

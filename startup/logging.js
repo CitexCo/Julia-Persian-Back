@@ -32,14 +32,12 @@ module.exports = function() {
     })
   );
 
-  if (process.env.NODE_ENV !== "production") {
-    winston.add(
-      new winston.transports.Console({
-        level: "debug",
-        format: winston.format.combine(winston.format.colorize(), consoleFormatter)
-      })
-    );
-  }
+  winston.add(
+    new winston.transports.Console({
+      level: "debug",
+      format: winston.format.combine(winston.format.colorize(), consoleFormatter)
+    })
+  );
 
   process.on("uncaughtException", ex => {
     winston.error({ message: ex.message, stack: ex.stack });

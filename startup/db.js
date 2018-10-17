@@ -1,10 +1,10 @@
+const config = require("config");
 const mongoose = require("mongoose"),
   Schema = mongoose.Schema,
   autoIncrement = require("mongoose-auto-increment");
-const config = require("../config/setting");
 
 mongoose.connect(
-  config.database,
+  config.get("database"),
   { useNewUrlParser: true }
 );
 mongoose.set("useCreateIndex", true);

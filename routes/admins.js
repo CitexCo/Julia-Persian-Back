@@ -4,7 +4,7 @@ const passport = require("passport");
 const multer = require("multer");
 const path = require("path");
 const randToken = require("rand-token");
-const conf = require("config");
+const config = require("config");
 
 const User = require("../models/user");
 const Account = require("../models/account");
@@ -20,7 +20,6 @@ const Log = require("../middlewares/log");
 const Email = require("../middlewares/email");
 const authorize = require("../middlewares/authorize");
 const i18n = require("../middlewares/i18n");
-const config = require("../config/setting");
 
 var storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -55,7 +54,7 @@ router.post(
     });
     passwordToken = await ForgottenPasswordToken.forgotPassword(passwordToken);
 
-    var locals = { server: config.serverAddr, email: account.email, passwordToken: passwordToken.token };
+    var locals = { server: config.get("serverAddr"), email: account.email, passwordToken: passwordToken.token };
     await Email.sendMail(account.email, "register-other", locals);
     Log(req, "Exchanger registered successfuly", account.email);
     return res.json({
@@ -91,7 +90,7 @@ router.post(
     });
     passwordToken = await ForgottenPasswordToken.forgotPassword(passwordToken);
 
-    var locals = { server: config.serverAddr, email: account.email, passwordToken: passwordToken.token };
+    var locals = { server: config.get("serverAddr"), email: account.email, passwordToken: passwordToken.token };
     await Email.sendMail(account.email, "register-other", locals);
     Log(req, "Admin registered successfuly", account.email);
     return res.json({
@@ -462,7 +461,7 @@ router.post("/transfer-blockchain", [passport.authenticate("jwt", { session: fal
     throw new Error("TranferRequest sent to blockchain before");
   }
   if (transferRequest.lastTransferedDate) {
-    exp = await DateUtils.addminutes(new Date(), conf.get("retransferBlockchainMinutes")); // 15 minutes
+    exp = await DateUtils.addminutes(new Date(), config.get("retransferBlockchainMinutes")); // 15 minutes
     if (exp > new Date()) {
       throw new Error("You must wait 15 minutes until send again");
     }

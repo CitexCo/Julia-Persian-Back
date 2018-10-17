@@ -6,13 +6,13 @@ const fs = require("fs");
 const uploadDir = path.join(__dirname, "../uploads");
 const multer = require("multer");
 const randToken = require("rand-token");
+const config = require("config");
 
 const Log = require("../middlewares/log");
 const i18n = require("../middlewares/i18n");
 const authorize = require("../middlewares/authorize");
 const Email = require("../middlewares/email");
 const DateUtils = require("../middlewares/date-utils");
-const config = require("../config/setting");
 const Account = require("../models/account");
 const User = require("../models/user");
 const Receipt = require("../models/receipt");
@@ -38,7 +38,7 @@ router.post("/register", i18n, async (req, res, next) => {
   const password = req.body.password;
   const referal = req.body.referal;
   account = await User.addUser(email, password, referal);
-  var locals = { server: config.serverAddr, email: account.email, emailVerificationToken: account.emailVerificationToken };
+  var locals = { server: config.get("serverAddr"), email: account.email, emailVerificationToken: account.emailVerificationToken };
   await Email.sendMail(account.email, "register", locals);
   Log(req, "User registered successfuly", account.email);
   return res.json({
