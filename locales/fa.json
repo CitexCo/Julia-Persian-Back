@@ -73,5 +73,6 @@
   "TransferRequest number %i sent to blockchain": "درخواست انتقال توکن شماره %i به بلاک چین ارسال شد",
   "You can modify incomplete receipts only": "شما تنها می‌توانید رسیدهای کامل نشده را تغییر بدهید",
   "Account %s enabled successfuly": "حساب کاربری %s با موفقیت فعال شد",
-  "Account %s disabled successfuly": "حساب کاربری %s با موفقیت غیرفعال شد"
+  "Account %s disabled successfuly": "حساب کاربری %s با موفقیت غیرفعال شد",
+  "New Price Saved": "قیمت جدید توکن ذخیره شد"
 }

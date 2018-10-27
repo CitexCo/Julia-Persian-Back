@@ -1,3 +1,4 @@
+// exchangers routes, all function that exchangers need
 const express = require("express");
 const router = express.Router();
 const passport = require("passport");
@@ -12,6 +13,9 @@ const Exchanger = require("../models/exchanger");
 const authorize = require("../middlewares/authorize");
 const i18n = require("../middlewares/i18n");
 
+// config multer for stored uploaded files
+// uploaded files store in "uploads" folder under root
+// filename = random hex + Now to miliseconds + file extansion (.jpg, ...)
 var storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "./uploads");

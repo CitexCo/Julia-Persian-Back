@@ -1,3 +1,4 @@
+// users routes, all function that users need
 const express = require("express");
 const router = express.Router();
 const path = require("path");
@@ -21,6 +22,9 @@ const TransferRequest = require("../models/transferRequest");
 const Exchanger = require("../models/exchanger");
 const Price = require("../models/price");
 
+// config multer for stored uploaded files
+// uploaded files store in "uploads" folder under root
+// filename = random hex + Now to miliseconds + file extansion (.jpg, ...)
 var storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "./uploads");
@@ -32,7 +36,7 @@ var storage = multer.diskStorage({
 });
 var upload = multer({ storage: storage });
 
-//Register
+// Register new user and send verification email
 router.post("/register", i18n, async (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
@@ -47,7 +51,7 @@ router.post("/register", i18n, async (req, res, next) => {
   });
 });
 
-// Get KYC Code for display in passportImage by user
+// Get KYC Code (numbers only) for display in passportImage by user
 router.get("/kyc-code", [passport.authenticate("jwt", { session: false }), i18n, authorize], async (req, res, next) => {
   const email = req.user.email;
   code = randToken.generate(6, "0123456789");
@@ -81,6 +85,8 @@ router.post("/exchanger", [passport.authenticate("jwt", { session: false }), i18
 });
 
 // Update KYC
+// uploads 2 files: passportImage, image
+// get kyc information in post body
 router.post("/updatekyc", [passport.authenticate("jwt", { session: false }), i18n, authorize, upload.any()], async (req, res, next) => {
   const email = req.user.email;
 
@@ -126,7 +132,7 @@ router.post("/updatekyc", [passport.authenticate("jwt", { session: false }), i18
   return res.json({ success: true, msg: __("Your KYC Updated, please wait to admin verify them") });
 });
 
-// Sign Contract
+// Sign Contract by user, get contractType in body
 router.post("/sign-contract", [passport.authenticate("jwt", { session: false }), i18n, authorize], async (req, res, next) => {
   const email = req.user.email;
   const contractType = req.body.contractType;
@@ -143,7 +149,7 @@ router.post("/sign-contract", [passport.authenticate("jwt", { session: false }),
   }
 });
 
-// Get Referals
+// Get Referals of user
 router.get("/getreferal", [passport.authenticate("jwt", { session: false }), i18n, authorize], async (req, res, next) => {
   const email = req.user.email;
   user = await User.getUserByEmail(email);
@@ -180,6 +186,7 @@ router.post("/create-receipt", [passport.authenticate("jwt", { session: false })
 });
 
 // Upload Sale Receipt by user
+// sale receipt file in receipt
 router.post(
   "/complete-receipt",
   [passport.authenticate("jwt", { session: false }), i18n, authorize, upload.single("receipt")],

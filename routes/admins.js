@@ -1,3 +1,4 @@
+// admins routes, all function that admins need
 const express = require("express");
 const router = express.Router();
 const passport = require("passport");
@@ -21,6 +22,9 @@ const Email = require("../middlewares/email");
 const authorize = require("../middlewares/authorize");
 const i18n = require("../middlewares/i18n");
 
+// config multer for stored uploaded files
+// uploaded files store in "uploads" folder under root
+// filename = random hex + Now to miliseconds + file extansion (.jpg, ...)
 var storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "./uploads");
@@ -32,7 +36,7 @@ var storage = multer.diskStorage({
 });
 var upload = multer({ storage: storage });
 
-// Register Exchanger
+// Register new Exchanger
 router.post(
   "/register-exchanger",
   [passport.authenticate("jwt", { session: false }), i18n, authorize, upload.single("image")],
@@ -64,7 +68,7 @@ router.post(
   }
 );
 
-// Register Admin
+// Register new Admin
 router.post(
   "/register-admin",
   [passport.authenticate("jwt", { session: false }), i18n, authorize, upload.single("image")],

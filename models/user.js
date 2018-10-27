@@ -27,6 +27,7 @@ const UserSchema = mongoose.Schema({
   balance: { type: Number, default: 0 }
 });
 
+// walletAddress must be uniqe and create index based on it
 UserSchema.index(
   { walletAddress: 1 },
   {
@@ -37,30 +38,7 @@ UserSchema.index(
 
 const User = (module.exports = mongoose.model("User", UserSchema));
 
-module.exports.getUserById = function(id, callback) {
-  User.findById(id, callback);
-};
-
-module.exports.getUserByIdAsync = async function(id) {
-  user = await User.findById(id);
-  if (!user) {
-    throw new Error("User not found");
-  }
-  return user;
-};
-
-module.exports.getUserByStrId = async function(strId) {
-  var id = mongoose.Types.ObjectId;
-  if (id.isValid(strId)) {
-    id = mongoose.Types.ObjectId(strId);
-    user = await User.findById(id);
-    if (user) {
-      return user;
-    }
-  }
-  throw new Error("UserId not found");
-};
-
+// get user's email as input and return user's object as output
 module.exports.getUserByEmail = async function(email) {
   const query = { email: email };
   user = await User.findOne(query);
@@ -71,6 +49,7 @@ module.exports.getUserByEmail = async function(email) {
   return user;
 };
 
+// add user to Database, check if referals is correct and generate salt and hash password, also create account for user
 module.exports.addUser = async function(email, password, referal) {
   await User.checkReferal(referal);
   var newAccount = new Account({
@@ -84,13 +63,15 @@ module.exports.addUser = async function(email, password, referal) {
   salt = await bcrypt.genSalt(10);
   hash = await bcrypt.hash(newAccount.password, salt);
   newAccount.password = hash;
-  var token = randToken.generate(16);
+  // generate random uniqe referal code for invitation - 8 chars
   var referalCode = randToken.generate(8);
   user = await User.findOne({ referalCode: referalCode });
   while (user) {
     referalCode = randToken.generate(8);
     user = await User.findOne({ referalCode: referalCode });
   }
+  // generate email verification code - 16 chars
+  var token = randToken.generate(16);
   newAccount.emailVerificationToken = token;
   try {
     var newUser = new User({ email: email, referal: referal, referalCode: referalCode });
@@ -105,10 +86,12 @@ module.exports.addUser = async function(email, password, referal) {
   }
 };
 
+// compare input password with stored password in DB, for authentication
 module.exports.comparePassword = async function(candidatePassword, hash) {
   return await bcrypt.compare(candidatePassword, hash);
 };
 
+// change user's password
 module.exports.changePassword = async function(user, newPassword) {
   salt = await bcrypt.genSalt(10);
   hash = await bcrypt.hash(newPassword, salt);
@@ -116,6 +99,7 @@ module.exports.changePassword = async function(user, newPassword) {
   return await user.save();
 };
 
+// check if referal exist in DB
 module.exports.checkReferal = async function(referal) {
   if (referal) {
     query = { referalCode: referal.toUpperCase() };
@@ -132,9 +116,9 @@ module.exports.checkReferal = async function(referal) {
   }
 };
 
+// check if requestedRole in roles for authorize admins
 module.exports.hasRole = async function(roles, requestedRole) {
   var isFound = false;
-  requestedRole.push("admin");
 
   roles.forEach(function(role, index, array) {
     if (requestedRole.includes(role.roleTitle)) {
@@ -144,6 +128,7 @@ module.exports.hasRole = async function(roles, requestedRole) {
   return await isFound;
 };
 
+// return user's referal list
 module.exports.getUserReferals = async function(referal) {
   console.log(referal);
   const query = { referal: referal };
@@ -151,26 +136,19 @@ module.exports.getUserReferals = async function(referal) {
   return await User.find(query, { email: 1, _id: 0 });
 };
 
+// return all users list
 module.exports.getUsersList = async function() {
   const query = {};
   return await User.find(query);
 };
 
-module.exports.getUsersListRoles = async function() {
-  const query = {};
-  return await User.find(query, {
-    email: 1,
-    firstName: 1,
-    lastName: 1,
-    roles: 1
-  });
-};
-
+// return users information when user updated his KYC and his KYC not verified yet
 module.exports.getUsersListKYC = async function() {
   const query = { KYCUpdated: true, KYCVerified: false };
   return await User.find(query, { password: 0 });
 };
 
+// get a user KYC information
 module.exports.getUserKYC = async function(email) {
   const query = { email: email };
 
